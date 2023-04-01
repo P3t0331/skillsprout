@@ -15,6 +15,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Deadline Tracker',
       theme: ThemeData(
+          useMaterial3: true,
           primarySwatch: Colors.blue,
           textTheme: GoogleFonts.nunitoTextTheme(Theme.of(context).textTheme)),
       home: HomePage(),
