@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "416204323587",
+    "project_id": "taskmate-b809b",
+    "storage_bucket": "taskmate-b809b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416204323587:android:6d476e5ba403bd6d27c736",
+        "android_client_info": {
+          "package_name": "com.example.deadline_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416204323587-3lmd9je706stmmc1cs0ahc39cjavogqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJpuW8r5RtGX4w0Z1ecEXfxxUeycD5FIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416204323587-3lmd9je706stmmc1cs0ahc39cjavogqs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
