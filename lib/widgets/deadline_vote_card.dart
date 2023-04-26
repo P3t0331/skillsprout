@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
 
@@ -20,7 +21,8 @@ class DeadlineVoteCard extends StatelessWidget {
             children: [
               Text(deadline.title),
               Text(
-                "Due: " + deadline.date.toString(),
+                "Due: " +
+                    DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
                 style: TextStyle(color: Colors.grey),
               )
             ],
@@ -32,12 +34,18 @@ class DeadlineVoteCard extends StatelessWidget {
           ),
           Column(
             children: [
-              Icon(
-                Icons.arrow_upward_rounded,
+              GestureDetector(
+                onTap: () => {print("upvoted")},
+                child: Icon(
+                  Icons.arrow_upward_rounded,
+                ),
               ),
-              Icon(
-                Icons.arrow_downward_rounded,
-              )
+              GestureDetector(
+                onTap: () => {print("downvoted")},
+                child: Icon(
+                  Icons.arrow_downward_rounded,
+                ),
+              ),
             ],
           )
         ],

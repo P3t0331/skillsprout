@@ -1,7 +1,7 @@
 import 'package:deadline_tracker/main.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
-import 'package:deadline_tracker/widgets/small_title_text.dart';
+import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 
 import '../models/deadline.dart';
@@ -34,7 +34,7 @@ class AddSubjectPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SmallTitleText(text: "Crete new subject"),
+            TitleText(text: "Crete new subject"),
             SizedBox(height: 20),
             DecoratedContainer(
                 child: InputField(
@@ -59,7 +59,7 @@ class AddSubjectPage extends StatelessWidget {
             SizedBox(height: 20),
             Divider(),
             SizedBox(height: 20),
-            SmallTitleText(text: "Search community subjects"),
+            TitleText(text: "Search community subjects"),
             SizedBox(height: 10),
             DecoratedContainer(
               child: InputField(

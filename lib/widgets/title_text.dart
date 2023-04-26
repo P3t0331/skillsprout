@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-class SmallTitleText extends StatelessWidget {
+class TitleText extends StatelessWidget {
   final String text;
   final double fontSize;
 
-  SmallTitleText({super.key, required this.text, this.fontSize = 24});
+  TitleText({super.key, required this.text, this.fontSize = 24});
 
   @override
   Widget build(BuildContext context) {

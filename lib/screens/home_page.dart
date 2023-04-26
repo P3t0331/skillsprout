@@ -1,4 +1,5 @@
 import 'package:deadline_tracker/screens/add_subject_page.dart';
+import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/widgets/deadline_card.dart';
 import 'package:deadline_tracker/widgets/deadline_vote_card.dart';
 import 'package:deadline_tracker/widgets/decorated_container.dart';
@@ -7,12 +8,13 @@ import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/input_field.dart';
-import 'package:deadline_tracker/widgets/small_title_text.dart';
+import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:deadline_tracker/widgets/subject_card.dart';
 import 'package:flutter/material.dart';
 
 import '../models/deadline.dart';
 import '../models/subject.dart';
+import '../widgets/add_button.dart';
 import 'add_deadline_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -60,7 +62,7 @@ class HomePage extends StatelessWidget {
         SizedBox(
           height: 20,
         ),
-        SmallTitleText(text: "Subjects"),
+        TitleText(text: "Subjects"),
         SizedBox(
           height: 20,
         ),
@@ -68,22 +70,9 @@ class HomePage extends StatelessWidget {
         SizedBox(
           height: 20,
         ),
-        InkWell(
-          onTap: () {
-            final addSubjectPage = MaterialPageRoute(
-                builder: (BuildContext context) => AddSubjectPage());
-            Navigator.of(context).push(addSubjectPage);
-          },
-          child: DecoratedContainer(
-            child: Center(
-              child: Icon(
-                Icons.add,
-                size: 48,
-                color: Colors.grey,
-              ),
-            ),
-            padding: EdgeInsets.zero,
-          ),
+        AddButton(
+          route: MaterialPageRoute(
+              builder: (BuildContext context) => AddSubjectPage()),
         )
       ],
     ));
@@ -98,9 +87,19 @@ class HomePage extends StatelessWidget {
               shrinkWrap: true,
               itemCount: subjects.length,
               itemBuilder: (BuildContext context, int index) {
-                return DecoratedContainer(
-                  child: SubjectCard(
-                    subject: subjects[index],
+                return InkWell(
+                  onTap: () {
+                    final subjectPage = MaterialPageRoute(
+                      builder: (BuildContext context) => SubjectPage(
+                        subject: subjects[index],
+                      ),
+                    );
+                    Navigator.of(context).push(subjectPage);
+                  },
+                  child: DecoratedContainer(
+                    child: SubjectCard(
+                      subject: subjects[index],
+                    ),
                   ),
                 );
               },

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
 
 class DeadlineCard extends StatelessWidget {
-  final String subjectName;
+  final String? subjectName;
   final Deadline deadline;
-  DeadlineCard({super.key, required this.subjectName, required this.deadline});
+  DeadlineCard({super.key, this.subjectName = null, required this.deadline});
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +15,15 @@ class DeadlineCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            subjectName,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          subjectName != null
+              ? Text(
+                  subjectName!,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )
+              : SizedBox(),
           Text(deadline.title),
           Text(
-            "Due: " + deadline.date.toIso8601String(),
+            "Due: " + DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
             style: TextStyle(color: Colors.grey),
           )
         ],

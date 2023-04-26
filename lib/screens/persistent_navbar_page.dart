@@ -1,4 +1,4 @@
-import 'package:deadline_tracker/screens/deadline_page.dart';
+import 'package:deadline_tracker/screens/search_deadlines_page.dart';
 import 'package:deadline_tracker/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,7 @@ class PersistentBottomNavPage extends StatelessWidget {
           navigatorkey: _homeNavigatorKey,
         ),
         PersistentTabItem(
-          tab: DeadlinePage(),
+          tab: SearchDeadlinesPage(),
           icon: Icons.content_paste_sharp,
           title: 'Deadlines',
           navigatorkey: _deadlinesNavigatorKey,

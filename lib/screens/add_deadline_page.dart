@@ -1,8 +1,9 @@
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
-import 'package:deadline_tracker/widgets/small_title_text.dart';
+import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 import '../widgets/decorated_container.dart';
 import '../widgets/input_field.dart';
@@ -16,7 +17,7 @@ class AddDeadlinePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SmallTitleText(text: "Crete new deadline"),
+            TitleText(text: "Crete new deadline"),
             SizedBox(
               height: 20,
             ),
@@ -45,7 +46,22 @@ class AddDeadlinePage extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            SmallTitleText(
+            ElevatedButton(
+                onPressed: () {
+                  DatePicker.showDatePicker(context,
+                      showTitleActions: true,
+                      minTime: DateTime(2023, 1, 1),
+                      maxTime: DateTime(2030, 12, 31), onChanged: (date) {
+                    print('change $date');
+                  }, onConfirm: (date) {
+                    print('confirm $date');
+                  }, currentTime: DateTime.now(), locale: LocaleType.en);
+                },
+                child: Text("Select date")),
+            SizedBox(
+              height: 10,
+            ),
+            TitleText(
               text: "Deadline details",
               fontSize: 18,
             ),
