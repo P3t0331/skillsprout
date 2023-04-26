@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 
 class DropdownFilter extends StatefulWidget {
+  final List<String> options;
+  DropdownFilter({super.key, required this.options});
+
   @override
   _DropdownState createState() => _DropdownState();
 }
 
 class _DropdownState extends State<DropdownFilter> {
-  String dropdownValue = 'Option 1';
+  String dropdownValue = "";
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      dropdownValue = widget.options.first;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +34,7 @@ class _DropdownState extends State<DropdownFilter> {
             dropdownValue = newValue!;
           });
         },
-        items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4']
-            .map<DropdownMenuItem<String>>((String value) {
+        items: widget.options.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),

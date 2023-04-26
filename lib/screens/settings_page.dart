@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -31,15 +32,12 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(24.0),
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            _singOut(context);
-          },
-          child: Text('Sign Out'),
-        ),
+    return PageContainer(
+      child: ElevatedButton(
+        onPressed: () {
+          _singOut(context);
+        },
+        child: Text('Sign Out'),
       ),
     );
   }
