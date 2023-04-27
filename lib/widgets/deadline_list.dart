@@ -11,7 +11,6 @@ class DeadlineList extends StatelessWidget {
   final bool useVoteCards;
 
   DeadlineList({super.key, required this.deadlines, this.useVoteCards = false});
-
   @override
   Widget build(BuildContext context) {
     return Container(

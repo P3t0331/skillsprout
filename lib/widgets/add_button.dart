@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'decorated_container.dart';
 
 class AddButton extends StatelessWidget {
-  final MaterialPageRoute<dynamic> route;
-  AddButton({super.key, required this.route});
+  final VoidCallback onTap;
+  AddButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(route);
-      },
+      onTap: onTap,
       child: DecoratedContainer(
         child: Center(
           child: Icon(

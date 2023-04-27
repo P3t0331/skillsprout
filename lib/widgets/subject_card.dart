@@ -17,9 +17,9 @@ class SubjectCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(subject.name),
+                Text(subject.code + " " + subject.name),
                 Text(
-                    "${subject.deadlines.length.toString()} ${subject.deadlines.length == 1 ? "deadline" : "deadlines"}",
+                    "${subject.deadlineIds.length.toString()} ${subject.deadlineIds.length == 1 ? "deadline" : "deadlines"}",
                     style: TextStyle(color: Colors.grey))
               ]),
           Icon(Icons.arrow_forward_ios_outlined)
