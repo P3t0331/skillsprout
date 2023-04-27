@@ -1,11 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeHeader extends StatelessWidget {
-  HomeHeader({super.key});
+  final int dueToday;
+  final int dueWeek;
+  HomeHeader({super.key, required this.dueToday, required this.dueWeek});
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = DateFormat.MMMMd().format(DateTime.now());
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Column(
@@ -13,15 +18,15 @@ class HomeHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "March 5th",
+            formattedDate,
             style: TextStyle(color: Colors.white, fontSize: 24),
           ),
           Text(
-            "0 deadlines due today",
+            "${dueToday.toString()} deadlines due today",
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
           Text(
-            "3 deadlines due this week",
+            "${dueWeek.toString()} deadlines due this week",
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
         ],

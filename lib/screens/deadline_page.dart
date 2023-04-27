@@ -1,43 +1,43 @@
-import 'package:deadline_tracker/widgets/deadline_card.dart';
-import 'package:deadline_tracker/widgets/search_field.dart';
-import 'package:deadline_tracker/widgets/small_title_text.dart';
+import 'package:deadline_tracker/widgets/page_container.dart';
+import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-import 'package:deadline_tracker/widgets/decorated_container.dart';
-
-import 'package:deadline_tracker/widgets/dropdown_filter.dart';
+import '../models/deadline.dart';
 
 class DeadlinePage extends StatelessWidget {
+  final Deadline deadline;
+  DeadlinePage({super.key, required this.deadline});
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(24.0),
-      child: Center(
+    return Scaffold(
+      appBar: AppBar(),
+      body: PageContainer(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SmallTitleText(text: "Sort by"),
+            TitleText(text: deadline.title),
+            SizedBox(
+              height: 20,
             ),
-            SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: DecoratedContainer(
-                child: DropdownFilter(),
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
+            Text(
+                "Due: ${DateFormat('E, d MMM yyyy HH:mm').format(deadline.date)}"),
+            SizedBox(
+              height: 20,
+            ),
+            TitleText(
+              text: "Deadline details",
+              fontSize: 18,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(deadline.description),
               ),
-            ),
-            SizedBox(height: 10),
-            DecoratedContainer(
-              child: SearchField(),
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-            ),
-            SizedBox(height: 40),
-            DecoratedContainer(child: DeadlineCard()),
-            SizedBox(height: 10),
-            DecoratedContainer(child: DeadlineCard()),
-            SizedBox(height: 10),
-            DecoratedContainer(child: DeadlineCard()),
+            )
           ],
         ),
       ),

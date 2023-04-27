@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/subject.dart';
+
 class SubjectCard extends StatelessWidget {
-  const SubjectCard({super.key});
+  final Subject subject;
+
+  const SubjectCard({super.key, required this.subject});
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +17,10 @@ class SubjectCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("PV239 - Mobile Application dev..."),
-                Text("2 deadlines", style: TextStyle(color: Colors.grey))
+                Text(subject.name),
+                Text(
+                    "${subject.deadlines.length.toString()} ${subject.deadlines.length == 1 ? "deadline" : "deadlines"}",
+                    style: TextStyle(color: Colors.grey))
               ]),
           Icon(Icons.arrow_forward_ios_outlined)
         ],

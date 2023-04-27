@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../models/deadline.dart';
 
 class DeadlineVoteCard extends StatelessWidget {
-  DeadlineVoteCard({super.key});
+  final Deadline deadline;
+
+  DeadlineVoteCard({super.key, required this.deadline});
 
   @override
   Widget build(BuildContext context) {
+    final int voteSum = deadline.upvoteIds.length - deadline.downvoteIds.length;
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Row(
@@ -12,29 +19,33 @@ class DeadlineVoteCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Homework 4"),
+              Text(deadline.title),
               Text(
-                "Due: Friday April 28th 17:00",
+                "Due: " +
+                    DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
                 style: TextStyle(color: Colors.grey),
               )
             ],
           ),
-          Expanded(flex: 1, child: SizedBox()),
+          Spacer(),
           Text(
-            "3",
+            voteSum.toString(),
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-          ),
-          SizedBox(
-            width: 10,
           ),
           Column(
             children: [
-              Icon(
-                Icons.arrow_upward_rounded,
+              GestureDetector(
+                onTap: () => {print("upvoted")},
+                child: Icon(
+                  Icons.arrow_upward_rounded,
+                ),
               ),
-              Icon(
-                Icons.arrow_downward_rounded,
-              )
+              GestureDetector(
+                onTap: () => {print("downvoted")},
+                child: Icon(
+                  Icons.arrow_downward_rounded,
+                ),
+              ),
             ],
           )
         ],
