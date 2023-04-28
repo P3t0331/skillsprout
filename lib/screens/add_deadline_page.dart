@@ -1,8 +1,10 @@
-import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/models/subject.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
+import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
+import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -23,6 +25,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
   final _deadlineService = GetIt.I<DeadlineService>();
 
   final _deadlineTitleEditingController = TextEditingController();
+  final _deadlineDescriptionEditingController = TextEditingController();
 
   DateTime time = DateTime.now();
   String? dropdownValue = null;
@@ -46,32 +49,10 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             SizedBox(
               height: 5,
             ),
-            // TODO Add user subjects to drop down options
             DecoratedContainer(
-              child: StreamBuilder(
+              child: StreamBuilderHandler<List<Subject>>(
                   stream: _subjectService.subjectStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(child: Text(snapshot.error.toString()));
-                    }
-                    if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    final data = snapshot.data!;
-                    if (data.length == 0) {
-                      return Center(child: Text("There is no data to display"));
-                    }
-                    final subjects = snapshot.data!.map((e) => e.code).toList();
-                    return DropdownFilter(
-                      onChanged: (String? value) {
-                        setState(() {
-                          dropdownValue = value;
-                        });
-                      },
-                      value: dropdownValue,
-                      options: subjects,
-                    );
-                  }),
+                  toReturn: drawDropdownFilterValuesAfterChecks),
               padding: EdgeInsets.symmetric(horizontal: 8.0),
             ),
             SizedBox(
@@ -113,6 +94,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
               minLines: 6,
               keyboardType: TextInputType.multiline,
               maxLines: 6,
+              controller: _deadlineDescriptionEditingController,
             )),
             SizedBox(
               height: 20,
@@ -123,11 +105,13 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
                 onTap: () {
                   if (dropdownValue != null) {
                     _deadlineService.createDeadline(
-                        Deadline(
-                            title: _deadlineTitleEditingController.text,
-                            date: time),
-                        dropdownValue!);
-                    showDialogSuccessful(context);
+                        title: _deadlineTitleEditingController.text,
+                        date: time,
+                        code: dropdownValue!,
+                        description:
+                            _deadlineDescriptionEditingController.text);
+                    ShowDialogUtils.showInfoDialog(
+                        context, 'Success', 'Deadline added Successfully');
                     Navigator.of(context).pop();
                   }
                 },
@@ -141,19 +125,22 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
     );
   }
 
-  Future<dynamic> showDialogSuccessful(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Success'),
-            content: Text('Deadline added successfully'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('OK'))
-            ],
-          );
+  Widget drawDropdownFilterValuesAfterChecks(
+      AsyncSnapshot<List<Subject>> snapshot) {
+    final data = snapshot.data!;
+    if (data.length == 0) {
+      return Center(child: Text("There is no data to display"));
+    }
+
+    final subjects = snapshot.data!.map((e) => e.code).toList();
+    return DropdownFilter(
+      onChanged: (String? value) {
+        setState(() {
+          dropdownValue = value;
         });
+      },
+      value: dropdownValue,
+      options: subjects,
+    );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:deadline_tracker/services/deadline_service.dart';
-import 'package:deadline_tracker/widgets/deadline_card.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/input_field.dart';
+import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
                   dropdownValue = value!;
                 });
               },
-              options: ["Date", "Subject"],
+              options: ["Date", "Title"],
               value: dropdownValue,
             ),
             padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -52,25 +52,23 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
           ),
           SizedBox(height: 40),
           Expanded(
-            child: StreamBuilder<List<Deadline>>(
-                stream: widget._deadlineService.deadlineStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text(snapshot.error.toString()));
-                  }
-                  if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  final data = snapshot.data!;
-                  if (data.length == 0) {
-                    return Center(child: Text("There is no data to display"));
-                  }
-                  final deadlines = snapshot.data!;
-                  return DeadlineList(deadlines: deadlines);
-                }),
+            child: StreamBuilderHandler<List<Deadline>>(
+                stream: widget._deadlineService
+                    .deadlineStream(orderBy: dropdownValue),
+                toReturn: drawDeadlinesAfterChecks),
           )
         ],
       ),
     );
+  }
+
+  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot) {
+    final data = snapshot.data!;
+    if (data.length == 0) {
+      return Center(child: Text("There is no data to display"));
+    }
+    final deadlines = snapshot.data!;
+    print(deadlines.map((e) => e.title).toList());
+    return DeadlineList(deadlines: deadlines);
   }
 }

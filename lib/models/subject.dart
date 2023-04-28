@@ -1,7 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'deadline.dart';
-
 part 'subject.g.dart';
 
 @JsonSerializable()

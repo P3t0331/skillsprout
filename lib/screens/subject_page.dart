@@ -1,29 +1,22 @@
 import 'package:deadline_tracker/screens/add_deadline_page.dart';
-import 'package:deadline_tracker/widgets/add_button.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../models/deadline.dart';
 import '../models/subject.dart';
+import '../services/deadline_service.dart';
 import '../widgets/decorated_container.dart';
 import '../widgets/page_container.dart';
+import '../widgets/streambuilder_handler.dart';
 
 class SubjectPage extends StatelessWidget {
   final Subject subject;
-  final List<Deadline> deadlines = [
-    Deadline(title: "HW4", date: DateTime.now()),
-    Deadline(title: "HW2", date: DateTime.now()),
-    Deadline(title: "HW10", date: DateTime.now()),
-    Deadline(title: "HW15", date: DateTime.now()),
-    Deadline(title: "HW27", date: DateTime.now()),
-    Deadline(title: "HW37", date: DateTime.now()),
-    Deadline(title: "HW45", date: DateTime.now()),
-    Deadline(title: "HW55", date: DateTime.now()),
-    Deadline(title: "HW87", date: DateTime.now()),
-    Deadline(title: "HW98", date: DateTime.now()),
-  ];
+  final List<Deadline> deadlines = [];
+
+  final _deadlineService = GetIt.I<DeadlineService>();
 
   SubjectPage({super.key, required this.subject});
 
@@ -87,16 +80,10 @@ class SubjectPage extends StatelessWidget {
                         height: 20,
                       ),
                       Expanded(
-                        child: TabBarView(
-                          children: [
-                            DeadlineList(deadlines: deadlines),
-                            DeadlineList(
-                              deadlines: deadlines,
-                              useVoteCards: true,
-                            ),
-                          ],
-                        ),
-                      )
+                          child: StreamBuilderHandler<List<Deadline>>(
+                              stream: _deadlineService.subjectDeadlineStream(
+                                  subjectCode: subject.code),
+                              toReturn: showDeadlinesAfterChecks))
                     ],
                   ),
                 ),
@@ -107,5 +94,26 @@ class SubjectPage extends StatelessWidget {
             ],
           ),
         ));
+  }
+
+  Widget showDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot) {
+    final data = snapshot.data!;
+    var approvedDeadlines =
+        data.where((element) => element.upvoteIds.length >= 3).toList();
+    var pendingDeadlines =
+        data.where((element) => element.upvoteIds.length < 3).toList();
+    return TabBarView(
+      children: [
+        approvedDeadlines.length != 0
+            ? DeadlineList(deadlines: approvedDeadlines)
+            : Center(child: Text("There is no data to display")),
+        pendingDeadlines.length != 0
+            ? DeadlineList(
+                deadlines: pendingDeadlines,
+                useVoteCards: true,
+              )
+            : Center(child: Text("There is no data to display")),
+      ],
+    );
   }
 }

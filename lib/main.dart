@@ -1,9 +1,4 @@
 import 'package:deadline_tracker/app_root.dart';
-import 'package:deadline_tracker/screens/add_subject_page.dart';
-import 'package:deadline_tracker/screens/search_deadlines_page.dart';
-import 'package:deadline_tracker/screens/home_page.dart';
-import 'package:deadline_tracker/screens/login_register_page.dart';
-import 'package:deadline_tracker/screens/settings_page.dart';
 import 'package:deadline_tracker/services/ioc_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
