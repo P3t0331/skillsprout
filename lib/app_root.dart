@@ -1,5 +1,4 @@
 import 'package:deadline_tracker/screens/persistent_navbar_page.dart';
-import 'package:deadline_tracker/screens/home_page.dart';
 import 'package:deadline_tracker/screens/login_register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:deadline_tracker/services/auth.dart';

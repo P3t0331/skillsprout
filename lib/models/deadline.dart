@@ -23,10 +23,12 @@ class Deadline {
   final String description;
   final List<String> upvoteIds;
   final List<String> downvoteIds;
+  final String subjectRef;
 
   Deadline(
       {required this.title,
       required this.date,
+      required this.subjectRef,
       this.description = "",
       this.upvoteIds = const [],
       this.downvoteIds = const []});

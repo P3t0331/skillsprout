@@ -1,20 +1,16 @@
 import 'package:deadline_tracker/screens/add_subject_page.dart';
 import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
-import 'package:deadline_tracker/widgets/deadline_card.dart';
-import 'package:deadline_tracker/widgets/deadline_vote_card.dart';
 import 'package:deadline_tracker/widgets/decorated_container.dart';
-import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
-import 'package:deadline_tracker/widgets/input_field.dart';
+import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:deadline_tracker/widgets/subject_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/deadline.dart';
 import '../models/subject.dart';
 import '../widgets/add_button.dart';
 import 'add_deadline_page.dart';
@@ -72,48 +68,43 @@ class HomePage extends StatelessWidget {
       child: Container(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
-          child: StreamBuilder<List<Subject>>(
+          child: StreamBuilderHandler<List<Subject>>(
               stream: _subjectService.subjectStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text(snapshot.error.toString()));
-                }
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                final data = snapshot.data!;
-                if (data.length == 0) {
-                  return Center(child: Text("There is no data to display"));
-                }
-
-                final subjects = snapshot.data!;
-                return ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: subjects.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        final subjectPage = MaterialPageRoute(
-                          builder: (BuildContext context) => SubjectPage(
-                            subject: subjects[index],
-                          ),
-                        );
-                        Navigator.of(context).push(subjectPage);
-                      },
-                      child: DecoratedContainer(
-                        child: SubjectCard(
-                          subject: subjects[index],
-                        ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) =>
-                      SizedBox(
-                    height: 10,
-                  ),
-                );
-              }),
+              toReturn: drawSubjectsAfterChecks),
         ),
+      ),
+    );
+  }
+
+  Widget drawSubjectsAfterChecks(AsyncSnapshot<List<Subject>> snapshot) {
+    final data = snapshot.data!;
+    if (data.length == 0) {
+      return Center(child: Text("There is no data to display"));
+    }
+
+    final subjects = snapshot.data!;
+    return ListView.separated(
+      shrinkWrap: true,
+      itemCount: subjects.length,
+      itemBuilder: (BuildContext context, int index) {
+        return InkWell(
+          onTap: () {
+            final subjectPage = MaterialPageRoute(
+              builder: (BuildContext context) => SubjectPage(
+                subject: subjects[index],
+              ),
+            );
+            Navigator.of(context).push(subjectPage);
+          },
+          child: DecoratedContainer(
+            child: SubjectCard(
+              subject: subjects[index],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => SizedBox(
+        height: 10,
       ),
     );
   }
