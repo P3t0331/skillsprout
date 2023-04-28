@@ -4,6 +4,7 @@ import 'package:deadline_tracker/screens/search_deadlines_page.dart';
 import 'package:deadline_tracker/screens/home_page.dart';
 import 'package:deadline_tracker/screens/login_register_page.dart';
 import 'package:deadline_tracker/screens/settings_page.dart';
+import 'package:deadline_tracker/services/ioc_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,6 +13,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  IoCContainer.setup();
   runApp(const App());
 }
 

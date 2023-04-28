@@ -36,7 +36,7 @@ class SubjectPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TitleText(
-                text: subject.name,
+                text: subject.code + " " + subject.name,
                 fontSize: 32,
               ),
               Row(

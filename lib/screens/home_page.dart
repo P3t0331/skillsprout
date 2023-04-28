@@ -1,5 +1,6 @@
 import 'package:deadline_tracker/screens/add_subject_page.dart';
 import 'package:deadline_tracker/screens/subject_page.dart';
+import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/widgets/deadline_card.dart';
 import 'package:deadline_tracker/widgets/deadline_vote_card.dart';
 import 'package:deadline_tracker/widgets/decorated_container.dart';
@@ -11,6 +12,7 @@ import 'package:deadline_tracker/widgets/input_field.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:deadline_tracker/widgets/subject_card.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../models/deadline.dart';
 import '../models/subject.dart';
@@ -18,18 +20,7 @@ import '../widgets/add_button.dart';
 import 'add_deadline_page.dart';
 
 class HomePage extends StatelessWidget {
-  final List<Subject> subjects = [
-    Subject(
-        name: "Math",
-        deadlines: [Deadline(title: "arithmetics", date: DateTime.now())]),
-    Subject(
-        name: "English",
-        deadlines: [Deadline(title: "grammar", date: DateTime.now())]),
-    Subject(name: "History", deadlines: [
-      Deadline(title: "essay", date: DateTime.now()),
-      Deadline(title: "essay2", date: DateTime.now())
-    ]),
-  ];
+  final _subjectService = GetIt.I<SubjectService>();
   HomePage({super.key});
 
   @override
@@ -63,17 +54,15 @@ class HomePage extends StatelessWidget {
           height: 20,
         ),
         TitleText(text: "Subjects"),
-        SizedBox(
-          height: 20,
-        ),
         _drawSubjects(),
         SizedBox(
           height: 20,
         ),
-        AddButton(
-          route: MaterialPageRoute(
-              builder: (BuildContext context) => AddSubjectPage()),
-        )
+        AddButton(onTap: () {
+          final addSubjectPage = MaterialPageRoute(
+              builder: (BuildContext context) => AddSubjectPage());
+          Navigator.of(context).push(addSubjectPage);
+        })
       ],
     ));
   }
@@ -83,29 +72,47 @@ class HomePage extends StatelessWidget {
       child: Container(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
-          child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: subjects.length,
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  onTap: () {
-                    final subjectPage = MaterialPageRoute(
-                      builder: (BuildContext context) => SubjectPage(
-                        subject: subjects[index],
+          child: StreamBuilder<List<Subject>>(
+              stream: _subjectService.subjectStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text(snapshot.error.toString()));
+                }
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                final data = snapshot.data!;
+                if (data.length == 0) {
+                  return Center(child: Text("There is no data to display"));
+                }
+
+                final subjects = snapshot.data!;
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: subjects.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: () {
+                        final subjectPage = MaterialPageRoute(
+                          builder: (BuildContext context) => SubjectPage(
+                            subject: subjects[index],
+                          ),
+                        );
+                        Navigator.of(context).push(subjectPage);
+                      },
+                      child: DecoratedContainer(
+                        child: SubjectCard(
+                          subject: subjects[index],
+                        ),
                       ),
                     );
-                    Navigator.of(context).push(subjectPage);
                   },
-                  child: DecoratedContainer(
-                    child: SubjectCard(
-                      subject: subjects[index],
-                    ),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      SizedBox(
+                    height: 10,
                   ),
                 );
-              },
-              separatorBuilder: (BuildContext context, int index) => SizedBox(
-                    height: 20,
-                  )),
+              }),
         ),
       ),
     );
