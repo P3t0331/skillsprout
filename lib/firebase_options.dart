@@ -70,7 +70,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '416204323587',
     projectId: 'taskmate-b809b',
     storageBucket: 'taskmate-b809b.appspot.com',
-    iosClientId: '416204323587-gmlllp18i8j8dg49s6jutkflanqbjee2.apps.googleusercontent.com',
+    iosClientId:
+        '416204323587-gmlllp18i8j8dg49s6jutkflanqbjee2.apps.googleusercontent.com',
     iosBundleId: 'com.example.deadlineTracker',
   );
 }

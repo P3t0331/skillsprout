@@ -21,46 +21,49 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageContainer(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DecoratedContainer(
-          child: HorizontalButton(
-            text: "Quick add",
-            onTap: () {
-              final addDeadlinePage = MaterialPageRoute(
-                  builder: (BuildContext context) => AddDeadlinePage());
-              Navigator.of(context).push(addDeadlinePage);
-            },
-          ),
-          useGradient: true,
-          padding: EdgeInsets.all(8.0),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        DecoratedContainer(
-            child: HomeHeader(
-              dueToday: 1,
-              dueWeek: 3,
+    return Padding(
+      padding: const EdgeInsets.only(top: 32.0),
+      child: PageContainer(
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DecoratedContainer(
+            child: HorizontalButton(
+              text: "Quick add",
+              onTap: () {
+                final addDeadlinePage = MaterialPageRoute(
+                    builder: (BuildContext context) => AddDeadlinePage());
+                Navigator.of(context).push(addDeadlinePage);
+              },
             ),
-            useGradient: true),
-        SizedBox(
-          height: 20,
-        ),
-        TitleText(text: "Subjects"),
-        _drawSubjects(),
-        SizedBox(
-          height: 20,
-        ),
-        AddButton(onTap: () {
-          final addSubjectPage = MaterialPageRoute(
-              builder: (BuildContext context) => AddSubjectPage());
-          Navigator.of(context).push(addSubjectPage);
-        })
-      ],
-    ));
+            useGradient: true,
+            padding: EdgeInsets.all(8.0),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          DecoratedContainer(
+              child: HomeHeader(
+                dueToday: 1,
+                dueWeek: 3,
+              ),
+              useGradient: true),
+          SizedBox(
+            height: 20,
+          ),
+          TitleText(text: "Subjects"),
+          _drawSubjects(),
+          SizedBox(
+            height: 20,
+          ),
+          AddButton(onTap: () {
+            final addSubjectPage = MaterialPageRoute(
+                builder: (BuildContext context) => AddSubjectPage());
+            Navigator.of(context).push(addSubjectPage);
+          })
+        ],
+      )),
+    );
   }
 
   Widget _drawSubjects() {
@@ -85,6 +88,7 @@ class HomePage extends StatelessWidget {
     final subjects = snapshot.data!;
     return ListView.separated(
       shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: subjects.length,
       itemBuilder: (BuildContext context, int index) {
         return InkWell(

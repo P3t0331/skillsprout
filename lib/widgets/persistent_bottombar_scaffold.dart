@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/main.dart';
 import 'package:flutter/material.dart';
 
 import '../models/persistent_tab_item.dart';

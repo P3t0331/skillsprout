@@ -18,6 +18,7 @@ class DeadlineList extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: ListView.separated(
             shrinkWrap: true,
+            physics: ScrollPhysics(),
             itemCount: deadlines.length,
             itemBuilder: (BuildContext context, int index) {
               return InkWell(
