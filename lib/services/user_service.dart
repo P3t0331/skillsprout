@@ -25,21 +25,27 @@ class UserService {
 
   Future<void> joinSubject(String uid, String subjectId) {
     print("Joining subject with id: ${subjectId} for user ID: ${uid}");
-    return _userCollection.doc(uid).update({
-      'subjectIds': FieldValue.arrayUnion([subjectId])
-    });
+    return _userCollection.doc(uid).update(
+      {
+        'subjectIds': FieldValue.arrayUnion([subjectId])
+      },
+    );
   }
 
   Future<void> leaveSubject(String uid, String subjectId) {
     print("Leaving subject with id: ${subjectId} for user ID: ${uid}");
-    return _userCollection.doc(uid).update({
-      'subjectIds': FieldValue.arrayRemove([subjectId])
-    });
+    return _userCollection.doc(uid).update(
+      {
+        'subjectIds': FieldValue.arrayRemove([subjectId])
+      },
+    );
   }
 
   Stream<bool?> hasJoinedSubject(String uid, String subjectId) async* {
-    yield* await _userCollection.doc(uid).snapshots().map((doc) {
-      return doc.data()?.subjectIds.contains(subjectId);
-    });
+    yield* await _userCollection.doc(uid).snapshots().map(
+      (doc) {
+        return doc.data()?.subjectIds.contains(subjectId);
+      },
+    );
   }
 }

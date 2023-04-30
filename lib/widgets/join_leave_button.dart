@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,25 +26,32 @@ class JoinLeaveButton extends StatelessWidget {
     if (!snapshot.hasData) {
       return Text("No Data");
     }
+    print("Snapshot data: ${snapshot.data}");
     if (snapshot.data!) {
-      return JoinButton();
+      return LeaveButton(context);
     }
-    return LeaveButton();
+    return JoinButton(context);
   }
 
-  Widget JoinButton() {
+  Widget JoinButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () {
-          _userService.leaveSubject(uid, subjectId);
-        },
-        child: Text("Leave"));
-  }
-
-  Widget LeaveButton() {
-    return ElevatedButton(
-        onPressed: () {
-          _userService.joinSubject(uid, subjectId);
+          _userService.joinSubject(uid, subjectId).then((value) {
+            ShowDialogUtils.showInfoDialog(context, "Joined subject",
+                "You will receive push notifications when a new deadline is approved");
+          });
         },
         child: Text("Join"));
+  }
+
+  Widget LeaveButton(BuildContext context) {
+    return ElevatedButton(
+        onPressed: () {
+          ShowDialogUtils.showConfirmDialog(context, "Leave subject",
+              "Are you sure you want to leave this subject?", () {
+            _userService.leaveSubject(uid, subjectId);
+          });
+        },
+        child: Text("Leave"));
   }
 }

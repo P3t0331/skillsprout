@@ -69,13 +69,14 @@ class _SubjectPageState extends State<SubjectPage> {
                       (AsyncSnapshot<DocumentReference<Object?>> snapshot) {
                     final subjectId = snapshot.data!.id;
                     return StreamBuilderHandler(
-                        stream: widget._userService
-                            .hasJoinedSubject(_uid, subjectId),
-                        toReturn: (AsyncSnapshot<bool?> snapshot) =>
-                            JoinLeaveButton(
-                                snapshot: snapshot,
-                                uid: _uid,
-                                subjectId: subjectId));
+                      stream:
+                          widget._userService.hasJoinedSubject(_uid, subjectId),
+                      toReturn: (AsyncSnapshot<bool?> snapshot) =>
+                          JoinLeaveButton(
+                              snapshot: snapshot,
+                              uid: _uid,
+                              subjectId: subjectId),
+                    );
                   },
                 ),
               ],

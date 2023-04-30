@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deadline_tracker/models/deadline.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 
+import '../models/vote.dart';
+
 class DeadlineService {
   final SubjectService _subjectService;
 
@@ -30,6 +32,17 @@ class DeadlineService {
         .map((querySnapshot) => querySnapshot.docs
             .map((docSnapshot) => docSnapshot.data())
             .toList());
+  }
+
+  Future<String> getDeadlineId(Deadline deadline) {
+    return _deadlineCollection
+        .where('title', isEqualTo: deadline.title)
+        .where('description', isEqualTo: deadline.description)
+        .where('date', isEqualTo: deadline.date)
+        .get()
+        .then((querySnapshot) {
+      return querySnapshot.docs.first.id;
+    });
   }
 
   Future<void> createDeadline(
@@ -62,5 +75,59 @@ class DeadlineService {
 
   Future<void> deleteDeadline(String deadlineId) {
     return _deadlineCollection.doc(deadlineId).delete();
+  }
+
+  Stream<Vote> getUserVote(String deadlineId, String uid) async* {
+    final snapshot = await _deadlineCollection.doc(deadlineId).get();
+    if (snapshot.get('upvoteIds').contains(uid)) {
+      yield Vote.upvote;
+    } else if (snapshot.get('downvoteIds').contains(uid)) {
+      yield Vote.downvote;
+    } else {
+      yield Vote.none;
+    }
+  }
+
+  Future<void> changeVote(String uid, String deadlineId, Vote vote) async {
+    switch (vote) {
+      case Vote.upvote:
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'upvoteIds': FieldValue.arrayUnion([uid])
+          },
+        );
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'downvoteIds': FieldValue.arrayRemove([uid])
+          },
+        );
+        break;
+      case Vote.downvote:
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'downvoteIds': FieldValue.arrayUnion([uid])
+          },
+        );
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'upvoteIds': FieldValue.arrayRemove([uid])
+          },
+        );
+        break;
+      case Vote.none:
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'upvoteIds': FieldValue.arrayRemove([uid])
+          },
+        );
+        await _deadlineCollection.doc(deadlineId).update(
+          {
+            'downvote': FieldValue.arrayRemove([uid])
+          },
+        );
+        break;
+      default:
+        throw Exception("unrecognized vote option");
+    }
   }
 }
