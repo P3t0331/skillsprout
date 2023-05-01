@@ -30,13 +30,11 @@ class DeadlineList extends StatelessWidget {
                   );
                   Navigator.of(context).push(subjectPage);
                 },
-                child: DecoratedContainer(
-                  child: useVoteCards
-                      ? DeadlineVoteCard(deadline: deadlines[index])
-                      : DeadlineCard(
-                          deadline: deadlines[index],
-                        ),
-                ),
+                child: useVoteCards
+                    ? DeadlineVoteCard(deadline: deadlines[index])
+                    : DeadlineCard(
+                        deadline: deadlines[index],
+                      ),
               );
             },
             separatorBuilder: (BuildContext context, int index) => SizedBox(

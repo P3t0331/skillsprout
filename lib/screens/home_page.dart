@@ -27,27 +27,21 @@ class HomePage extends StatelessWidget {
           child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DecoratedContainer(
-            child: HorizontalButton(
-              text: "Quick add",
-              onTap: () {
-                final addDeadlinePage = MaterialPageRoute(
-                    builder: (BuildContext context) => AddDeadlinePage());
-                Navigator.of(context).push(addDeadlinePage);
-              },
-            ),
-            useGradient: true,
-            padding: EdgeInsets.all(8.0),
+          HorizontalButton(
+            text: "Quick add",
+            onTap: () {
+              final addDeadlinePage = MaterialPageRoute(
+                  builder: (BuildContext context) => AddDeadlinePage());
+              Navigator.of(context).push(addDeadlinePage);
+            },
           ),
           SizedBox(
             height: 20,
           ),
-          DecoratedContainer(
-              child: HomeHeader(
-                dueToday: 1,
-                dueWeek: 3,
-              ),
-              useGradient: true),
+          HomeHeader(
+            dueToday: 1,
+            dueWeek: 3,
+          ),
           SizedBox(
             height: 20,
           ),
@@ -100,10 +94,8 @@ class HomePage extends StatelessWidget {
             );
             Navigator.of(context).push(subjectPage);
           },
-          child: DecoratedContainer(
-            child: SubjectCard(
-              subject: subjects[index],
-            ),
+          child: SubjectCard(
+            subject: subjects[index],
           ),
         );
       },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/subject.dart';
+import 'decorated_container.dart';
 
 class SubjectCard extends StatelessWidget {
   final Subject subject;
@@ -9,7 +10,7 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedContainer(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

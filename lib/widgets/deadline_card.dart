@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,23 +11,25 @@ class DeadlineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          subjectName != null
-              ? Text(
-                  subjectName!,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              : SizedBox(),
-          Text(deadline.title),
-          Text(
-            "Due: " + DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
-            style: TextStyle(color: Colors.grey),
-          )
-        ],
+    return DecoratedContainer(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            subjectName != null
+                ? Text(
+                    subjectName!,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                : SizedBox(),
+            Text(deadline.title),
+            Text(
+              "Due: " + DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
+              style: TextStyle(color: Colors.grey),
+            )
+          ],
+        ),
       ),
     );
   }

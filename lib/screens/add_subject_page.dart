@@ -35,41 +35,30 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           children: [
             TitleText(text: "Crete new subject"),
             SizedBox(height: 20),
-            DecoratedContainer(
-                child: InputField(
-                  controller: _subjectCodeEditingController,
-                  hintText: "Code",
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0)),
+            InputField(
+              controller: _subjectCodeEditingController,
+              hintText: "Code",
+            ),
             SizedBox(height: 10),
-            DecoratedContainer(
-                child: InputField(
-                  controller: _subjectNameEditingController,
-                  hintText: "Name",
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0)),
+            InputField(
+              controller: _subjectNameEditingController,
+              hintText: "Name",
+            ),
             SizedBox(height: 20),
-            DecoratedContainer(
-              child: HorizontalButton(
-                text: "Create",
-                onTap: () {
-                  onCreatePressed(context);
-                },
-              ),
-              useGradient: true,
-              padding: EdgeInsets.all(8.0),
+            HorizontalButton(
+              text: "Create",
+              onTap: () {
+                onCreatePressed(context);
+              },
             ),
             SizedBox(height: 20),
             Divider(),
             SizedBox(height: 20),
             TitleText(text: "Search community subjects"),
             SizedBox(height: 10),
-            DecoratedContainer(
-              child: InputField(
-                hintText: "Search",
-                useSearchIcon: true,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+            InputField(
+              hintText: "Search",
+              useSearchIcon: true,
             ),
             SizedBox(height: 20),
             _drawSearchResults(),

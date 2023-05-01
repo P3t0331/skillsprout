@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'decorated_container.dart';
+
 class HorizontalButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -7,12 +9,16 @@ class HorizontalButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 20, color: Colors.white),
+    return DecoratedContainer(
+      useGradient: true,
+      padding: EdgeInsets.all(8.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
         ),
       ),
     );

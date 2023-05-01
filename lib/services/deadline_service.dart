@@ -122,7 +122,7 @@ class DeadlineService {
         );
         await _deadlineCollection.doc(deadlineId).update(
           {
-            'downvote': FieldValue.arrayRemove([uid])
+            'downvoteIds': FieldValue.arrayRemove([uid])
           },
         );
         break;

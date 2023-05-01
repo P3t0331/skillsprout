@@ -8,6 +8,7 @@ import '../models/deadline.dart';
 import '../models/vote.dart';
 import '../services/auth.dart';
 import '../services/deadline_service.dart';
+import 'decorated_container.dart';
 
 class DeadlineVoteCard extends StatefulWidget {
   @override
@@ -36,38 +37,40 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
     final int _voteSum =
         widget.deadline.upvoteIds.length - widget.deadline.downvoteIds.length;
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.deadline.title),
-              Text(
-                "Due: " +
-                    DateFormat('E, d MMM yyyy HH:mm')
-                        .format(widget.deadline.date),
-                style: TextStyle(color: Colors.grey),
-              )
-            ],
-          ),
-          Spacer(),
-          Text(
-            _voteSum.toString(),
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-          ),
-          FutureBuilderHandler(
-            future: _deadlineId,
-            toReturn: (AsyncSnapshot<String> deadlineIdSnapshot) =>
-                StreamBuilderHandler(
-              stream: widget._deadlineService
-                  .getUserVote(deadlineIdSnapshot.data!, _uid),
-              toReturn: (AsyncSnapshot<Vote> voteSnapshot) =>
-                  _buildVoteButtons(voteSnapshot, deadlineIdSnapshot),
+    return DecoratedContainer(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.deadline.title),
+                Text(
+                  "Due: " +
+                      DateFormat('E, d MMM yyyy HH:mm')
+                          .format(widget.deadline.date),
+                  style: TextStyle(color: Colors.grey),
+                )
+              ],
             ),
-          ),
-        ],
+            Spacer(),
+            Text(
+              _voteSum.toString(),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+            ),
+            FutureBuilderHandler(
+              future: _deadlineId,
+              toReturn: (AsyncSnapshot<String> deadlineIdSnapshot) =>
+                  StreamBuilderHandler(
+                stream: widget._deadlineService
+                    .getUserVote(deadlineIdSnapshot.data!, _uid),
+                toReturn: (AsyncSnapshot<Vote> voteSnapshot) =>
+                    _buildVoteButtons(voteSnapshot, deadlineIdSnapshot),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -77,8 +80,15 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
     return Column(
       children: [
         GestureDetector(
-          onTap: () => widget._deadlineService
-              .changeVote(_uid, deadlineIdSnapshot.data!, Vote.upvote),
+          onTap: () {
+            if (voteSnapshot.data == Vote.upvote) {
+              widget._deadlineService
+                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+            } else {
+              widget._deadlineService
+                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.upvote);
+            }
+          },
           child: Icon(
             Icons.arrow_upward_rounded,
             color:
@@ -86,8 +96,15 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
           ),
         ),
         GestureDetector(
-          onTap: () => widget._deadlineService
-              .changeVote(_uid, deadlineIdSnapshot.data!, Vote.downvote),
+          onTap: () {
+            if (voteSnapshot.data == Vote.downvote) {
+              widget._deadlineService
+                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+            } else {
+              widget._deadlineService
+                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.downvote);
+            }
+          },
           child: Icon(
             Icons.arrow_downward_rounded,
             color:

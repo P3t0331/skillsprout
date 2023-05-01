@@ -88,16 +88,12 @@ class _SubjectPageState extends State<SubjectPage> {
             SizedBox(
               height: 10,
             ),
-            DecoratedContainer(
-              useGradient: true,
-              child: HorizontalButton(
-                text: "Create deadline",
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => AddDeadlinePage()));
-                },
-              ),
-              padding: EdgeInsets.all(8),
+            HorizontalButton(
+              text: "Create deadline",
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => AddDeadlinePage()));
+              },
             ),
             SizedBox(
               height: 10,

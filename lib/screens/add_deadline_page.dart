@@ -58,12 +58,10 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             SizedBox(
               height: 10,
             ),
-            DecoratedContainer(
-                child: InputField(
-                  controller: _deadlineTitleEditingController,
-                  hintText: "Name",
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0)),
+            InputField(
+              controller: _deadlineTitleEditingController,
+              hintText: "Name",
+            ),
             SizedBox(
               height: 10,
             ),
@@ -99,25 +97,20 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             SizedBox(
               height: 20,
             ),
-            DecoratedContainer(
-              child: HorizontalButton(
-                text: "Create",
-                onTap: () {
-                  if (dropdownValue != null) {
-                    _deadlineService.createDeadline(
-                        title: _deadlineTitleEditingController.text,
-                        date: time,
-                        code: dropdownValue!,
-                        description:
-                            _deadlineDescriptionEditingController.text);
-                    ShowDialogUtils.showInfoDialog(
-                        context, 'Success', 'Deadline added Successfully');
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              useGradient: true,
-              padding: EdgeInsets.all(8.0),
+            HorizontalButton(
+              text: "Create",
+              onTap: () {
+                if (dropdownValue != null) {
+                  _deadlineService.createDeadline(
+                      title: _deadlineTitleEditingController.text,
+                      date: time,
+                      code: dropdownValue!,
+                      description: _deadlineDescriptionEditingController.text);
+                  ShowDialogUtils.showInfoDialog(
+                      context, 'Success', 'Deadline added Successfully');
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),

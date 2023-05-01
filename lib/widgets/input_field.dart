@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'decorated_container.dart';
+
 class InputField extends StatelessWidget {
   final String hintText;
   final bool useSearchIcon;
@@ -14,13 +16,15 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      onChanged: (String value) => onChanged,
-      decoration: InputDecoration(
-          hintText: hintText,
-          border: InputBorder.none,
-          suffixIcon: useSearchIcon ? Icon(Icons.search) : null),
-    );
+    return DecoratedContainer(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: TextField(
+          controller: controller,
+          onChanged: (String value) => onChanged,
+          decoration: InputDecoration(
+              hintText: hintText,
+              border: InputBorder.none,
+              suffixIcon: useSearchIcon ? Icon(Icons.search) : null),
+        ));
   }
 }
