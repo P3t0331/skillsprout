@@ -35,6 +35,7 @@ class SubjectPage extends StatefulWidget {
 
 class _SubjectPageState extends State<SubjectPage> {
   late final Future<DocumentReference> _futureSubject;
+  late final Stream<List<Deadline>> _deadlineListStream;
   late final String _uid;
 
   @override
@@ -42,6 +43,8 @@ class _SubjectPageState extends State<SubjectPage> {
     super.initState();
     _uid = widget._authService.currentUser!.uid;
     _futureSubject = widget._subjectService.getSubject(widget.subject.code);
+    _deadlineListStream = widget._deadlineService
+        .subjectDeadlineStream(subjectCode: widget.subject.code);
   }
 
   @override
@@ -49,91 +52,97 @@ class _SubjectPageState extends State<SubjectPage> {
     return Scaffold(
       appBar: AppBar(),
       body: PageContainer(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TitleText(
-              text: widget.subject.code + " " + widget.subject.name,
-              fontSize: 32,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "32 members",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                FutureBuilderHandler(
-                  future: _futureSubject,
-                  toReturn:
-                      (AsyncSnapshot<DocumentReference<Object?>> snapshot) {
-                    final subjectId = snapshot.data!.id;
-                    return StreamBuilderHandler(
-                      stream:
-                          widget._userService.hasJoinedSubject(_uid, subjectId),
-                      toReturn: (AsyncSnapshot<bool?> snapshot) =>
-                          JoinLeaveButton(
-                              snapshot: snapshot,
-                              uid: _uid,
-                              subjectId: subjectId),
-                    );
-                  },
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Divider(),
-            SizedBox(
-              height: 10,
-            ),
-            HorizontalButton(
-              text: "Create deadline",
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => AddDeadlinePage()));
-              },
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: DefaultTabController(
-                length: 2,
-                child: Column(
+        child: FutureBuilderHandler(
+          future: _futureSubject,
+          toReturn: (AsyncSnapshot<DocumentReference<Object?>> snapshot) {
+            final subjectId = snapshot.data!.id;
+            return StreamBuilderHandler(
+              stream: widget._userService.hasJoinedSubject(_uid, subjectId),
+              toReturn: (AsyncSnapshot<bool?> joinedSubjectSnapshot) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TabBar(
-                      dividerColor: Colors.blue,
-                      indicatorColor: Colors.blue,
-                      tabs: [
-                        Tab(text: "Approved"),
-                        Tab(text: "Proposed"),
+                    TitleText(
+                      text: widget.subject.code + " " + widget.subject.name,
+                      fontSize: 32,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "32 members",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        JoinLeaveButton(
+                            snapshot: joinedSubjectSnapshot,
+                            uid: _uid,
+                            subjectId: subjectId),
                       ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Divider(),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    HorizontalButton(
+                      text: "Create deadline",
+                      isDisabled: !joinedSubjectSnapshot.data!,
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                AddDeadlinePage()));
+                      },
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Expanded(
+                      child: deadlineTabs(joinedSubjectSnapshot.data!),
                     ),
                     SizedBox(
                       height: 20,
                     ),
-                    Expanded(
-                        child: StreamBuilderHandler<List<Deadline>>(
-                            stream: widget._deadlineService
-                                .subjectDeadlineStream(
-                                    subjectCode: widget.subject.code),
-                            toReturn: showDeadlinesAfterChecks))
                   ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-          ],
+                );
+              },
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget showDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot) {
+  Widget deadlineTabs(bool enableVoting) {
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          TabBar(
+            dividerColor: Colors.blue,
+            indicatorColor: Colors.blue,
+            tabs: [
+              Tab(text: "Approved"),
+              Tab(text: "Proposed"),
+            ],
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Expanded(
+            child: StreamBuilderHandler<List<Deadline>>(
+                stream: _deadlineListStream,
+                toReturn: (AsyncSnapshot<List<Deadline>> snapshot) =>
+                    showDeadlinesAfterChecks(snapshot, enableVoting)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget showDeadlinesAfterChecks(
+      AsyncSnapshot<List<Deadline>> snapshot, bool enableVoting) {
     final data = snapshot.data!;
     var approvedDeadlines =
         data.where((element) => element.upvoteIds.length >= 3).toList();
@@ -142,12 +151,15 @@ class _SubjectPageState extends State<SubjectPage> {
     return TabBarView(
       children: [
         approvedDeadlines.length != 0
-            ? DeadlineList(deadlines: approvedDeadlines)
+            ? DeadlineList(
+                deadlines: approvedDeadlines,
+              )
             : Center(child: Text("There is no data to display")),
         pendingDeadlines.length != 0
             ? DeadlineList(
                 deadlines: pendingDeadlines,
                 useVoteCards: true,
+                enableVoting: enableVoting,
               )
             : Center(child: Text("There is no data to display")),
       ],

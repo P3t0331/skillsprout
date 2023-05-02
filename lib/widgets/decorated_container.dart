@@ -9,28 +9,32 @@ class DecoratedContainer extends StatelessWidget {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+  final bool isDisabled;
 
   DecoratedContainer(
       {super.key,
       required this.child,
       this.padding = const EdgeInsets.all(16.0),
-      this.useGradient = false});
+      this.useGradient = false,
+      this.isDisabled = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDisabled ? Colors.grey.shade400 : Colors.white,
         gradient: useGradient ? gradient : null,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.7),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
+        boxShadow: isDisabled
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.7),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
       ),
       padding: padding,
       child: child,

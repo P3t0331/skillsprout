@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
+import '../utils/date_formatter.dart';
 
 class DeadlineCard extends StatelessWidget {
   final String? subjectName;
@@ -25,7 +26,7 @@ class DeadlineCard extends StatelessWidget {
                 : SizedBox(),
             Text(deadline.title),
             Text(
-              "Due: " + DateFormat('E, d MMM yyyy HH:mm').format(deadline.date),
+              "Due: " + DateFormatter.formatDate(deadline.date),
               style: TextStyle(color: Colors.grey),
             )
           ],

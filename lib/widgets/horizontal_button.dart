@@ -5,15 +5,21 @@ import 'decorated_container.dart';
 class HorizontalButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
-  HorizontalButton({super.key, required this.text, required this.onTap});
+  final bool isDisabled;
+  HorizontalButton(
+      {super.key,
+      required this.text,
+      required this.onTap,
+      this.isDisabled = false});
 
   @override
   Widget build(BuildContext context) {
     return DecoratedContainer(
-      useGradient: true,
+      useGradient: !isDisabled,
       padding: EdgeInsets.all(8.0),
+      isDisabled: isDisabled,
       child: InkWell(
-        onTap: onTap,
+        onTap: isDisabled ? null : onTap,
         child: Center(
           child: Text(
             text,

@@ -15,9 +15,18 @@ class UserService {
     return json;
   });
 
-  Stream<List<AppUser>> get subjectStream =>
+  Stream<List<AppUser>> get userStream =>
       _userCollection.snapshots().map((querySnapshot) =>
           querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList());
+
+  Future<List<String>> getUserSubjectIds(String uid) async {
+    final userDoc = await _userCollection.doc(uid).get();
+    final user = userDoc.data();
+    if (user == null) {
+      return [];
+    }
+    return user.subjectIds;
+  }
 
   Future<void> createUser(AppUser user, String uid) {
     return _userCollection.doc(uid).set(user);

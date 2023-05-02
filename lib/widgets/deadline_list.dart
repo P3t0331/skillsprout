@@ -9,8 +9,13 @@ import 'decorated_container.dart';
 class DeadlineList extends StatelessWidget {
   final List<Deadline> deadlines;
   final bool useVoteCards;
+  final bool enableVoting;
 
-  DeadlineList({super.key, required this.deadlines, this.useVoteCards = false});
+  DeadlineList(
+      {super.key,
+      required this.deadlines,
+      this.useVoteCards = false,
+      this.enableVoting = false});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +36,10 @@ class DeadlineList extends StatelessWidget {
                   Navigator.of(context).push(subjectPage);
                 },
                 child: useVoteCards
-                    ? DeadlineVoteCard(deadline: deadlines[index])
+                    ? DeadlineVoteCard(
+                        deadline: deadlines[index],
+                        enableVoting: enableVoting,
+                      )
                     : DeadlineCard(
                         deadline: deadlines[index],
                       ),

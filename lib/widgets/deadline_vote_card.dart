@@ -8,6 +8,7 @@ import '../models/deadline.dart';
 import '../models/vote.dart';
 import '../services/auth.dart';
 import '../services/deadline_service.dart';
+import '../utils/date_formatter.dart';
 import 'decorated_container.dart';
 
 class DeadlineVoteCard extends StatefulWidget {
@@ -15,10 +16,12 @@ class DeadlineVoteCard extends StatefulWidget {
   State<DeadlineVoteCard> createState() => _DeadlineVoteCardState();
 
   final Deadline deadline;
+  final bool enableVoting;
   final _deadlineService = GetIt.I<DeadlineService>();
   final _authService = GetIt.I<Auth>();
 
-  DeadlineVoteCard({super.key, required this.deadline});
+  DeadlineVoteCard(
+      {super.key, required this.deadline, this.enableVoting = false});
 }
 
 class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
@@ -47,9 +50,7 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
               children: [
                 Text(widget.deadline.title),
                 Text(
-                  "Due: " +
-                      DateFormat('E, d MMM yyyy HH:mm')
-                          .format(widget.deadline.date),
+                  "Due: " + DateFormatter.formatDate(widget.deadline.date),
                   style: TextStyle(color: Colors.grey),
                 )
               ],
@@ -80,35 +81,45 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
     return Column(
       children: [
         GestureDetector(
-          onTap: () {
-            if (voteSnapshot.data == Vote.upvote) {
-              widget._deadlineService
-                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
-            } else {
-              widget._deadlineService
-                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.upvote);
-            }
-          },
+          onTap: widget.enableVoting
+              ? () {
+                  if (voteSnapshot.data == Vote.upvote) {
+                    widget._deadlineService
+                        .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+                  } else {
+                    widget._deadlineService.changeVote(
+                        _uid, deadlineIdSnapshot.data!, Vote.upvote);
+                  }
+                }
+              : null,
           child: Icon(
             Icons.arrow_upward_rounded,
-            color:
-                voteSnapshot.data == Vote.upvote ? Colors.orange : Colors.black,
+            color: widget.enableVoting
+                ? voteSnapshot.data == Vote.upvote
+                    ? Colors.orange
+                    : Colors.black
+                : Colors.grey,
           ),
         ),
         GestureDetector(
-          onTap: () {
-            if (voteSnapshot.data == Vote.downvote) {
-              widget._deadlineService
-                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
-            } else {
-              widget._deadlineService
-                  .changeVote(_uid, deadlineIdSnapshot.data!, Vote.downvote);
-            }
-          },
+          onTap: widget.enableVoting
+              ? () {
+                  if (voteSnapshot.data == Vote.downvote) {
+                    widget._deadlineService
+                        .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+                  } else {
+                    widget._deadlineService.changeVote(
+                        _uid, deadlineIdSnapshot.data!, Vote.downvote);
+                  }
+                }
+              : null,
           child: Icon(
             Icons.arrow_downward_rounded,
-            color:
-                voteSnapshot.data == Vote.downvote ? Colors.blue : Colors.black,
+            color: widget.enableVoting
+                ? voteSnapshot.data == Vote.downvote
+                    ? Colors.blue
+                    : Colors.black
+                : Colors.grey,
           ),
         ),
       ],

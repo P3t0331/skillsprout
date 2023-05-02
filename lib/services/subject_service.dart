@@ -27,6 +27,13 @@ class SubjectService {
             .toList());
   }
 
+  Future<List<Subject>> getSubjectsById(List<String> subjectIds) async {
+    final querySnapshot = await _subjectCollection
+        .where(FieldPath.documentId, whereIn: subjectIds)
+        .get();
+    return querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList();
+  }
+
   Future<DocumentReference> getSubject(String code) async {
     return await FirebaseFirestore.instance
         .collection('subjects')
