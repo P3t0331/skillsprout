@@ -1,11 +1,9 @@
-import 'package:deadline_tracker/models/app_user.dart';
 import 'package:deadline_tracker/models/subject.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
-import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -50,6 +48,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
+      resizeToAvoidBottomInset: false,
       body: PageContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +182,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
 
     final subjects = subjectSnapshot.data!.map((e) => e.code).toList();
     return DecoratedContainer(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: DropdownFilter(
         onChanged: (String? value) {
           setState(

@@ -1,7 +1,6 @@
 import 'package:deadline_tracker/screens/add_subject_page.dart';
 import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
-import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';

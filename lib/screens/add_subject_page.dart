@@ -10,6 +10,7 @@ import '../models/subject.dart';
 import '../services/auth.dart';
 import '../services/subject_service.dart';
 import '../utils/show_dialog_utils.dart';
+import '../utils/string_formatter.dart';
 import '../widgets/decorated_container.dart';
 import '../widgets/input_field.dart';
 
@@ -28,17 +29,22 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
 
   final _subjectNameEditingController = TextEditingController();
 
+  final _searchTextController = TextEditingController();
   late final String _uid;
 
   @override
   void initState() {
     super.initState();
     _uid = _authService.currentUser!.uid;
+    _searchTextController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(),
       body: PageContainer(
         child: Column(
@@ -62,14 +68,15 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                 onCreatePressed(context);
               },
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Divider(),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             TitleText(text: "Search community subjects"),
             SizedBox(height: 10),
             InputField(
               hintText: "Search",
               useSearchIcon: true,
+              controller: _searchTextController,
             ),
             SizedBox(height: 20),
             _drawSearchResults(),
@@ -99,17 +106,25 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   }
 
   Widget _drawSearchResults() {
-    //TODO change stream to show only relevant subjects based on search
     return StreamBuilderHandler<List<Subject>>(
         stream: _subjectService.subjectStream,
         toReturn: drawSearchResultHasData);
   }
 
   Widget drawSearchResultHasData(AsyncSnapshot<List<Subject>> snapshot) {
-    final subjects = snapshot.data!;
+    final subjects = snapshot.data!
+        .where((subject) =>
+            subject.code
+                .toLowerCase()
+                .contains(_searchTextController.text.toLowerCase()) ||
+            subject.name
+                .toLowerCase()
+                .contains(_searchTextController.text.toLowerCase()))
+        .toList();
+
     if (subjects.length == 0) {
       return Text(
-        "${subjects.length} Results found",
+        "0 Results found",
         style: TextStyle(color: Colors.grey),
       );
     }
@@ -118,7 +133,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${subjects.length} ${subjects.length == 1 ? 'Result' : 'Results'} found',
+            "${StringFormatter.handlePlural(subjects.length, "Result")} found",
             style: TextStyle(color: Colors.grey),
           ),
           Container(
@@ -134,27 +149,28 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
 
   ListView searchResultListView(List<Subject> subjects) {
     return ListView.separated(
-        shrinkWrap: true,
-        itemCount: subjects.length,
-        itemBuilder: (BuildContext context, int index) {
-          return DecoratedContainer(
-            child: InkWell(
-              onTap: () {
-                final subjectPage = MaterialPageRoute(
-                  builder: (BuildContext context) => SubjectPage(
-                    subject: subjects[index],
-                  ),
-                );
-                Navigator.of(context).push(subjectPage);
-              },
-              child: Text(
-                subjects[index].code + " " + subjects[index].name,
-              ),
+      shrinkWrap: true,
+      itemCount: subjects.length,
+      itemBuilder: (BuildContext context, int index) {
+        return DecoratedContainer(
+          child: InkWell(
+            onTap: () {
+              final subjectPage = MaterialPageRoute(
+                builder: (BuildContext context) => SubjectPage(
+                  subject: subjects[index],
+                ),
+              );
+              Navigator.of(context).push(subjectPage);
+            },
+            child: Text(
+              subjects[index].code + " " + subjects[index].name,
             ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) => SizedBox(
-              height: 10,
-            ));
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => SizedBox(
+        height: 10,
+      ),
+    );
   }
 }

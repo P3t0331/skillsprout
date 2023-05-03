@@ -73,10 +73,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
             SizedBox(height: 20),
             Expanded(
               child: StreamBuilderHandler<List<Deadline>>(
-                  stream: _deadlineStream,
-                  toReturn: (AsyncSnapshot<List<Deadline>> snapshot) =>
-                      drawDeadlinesAfterChecks(
-                          snapshot, _searchTextController)),
+                  stream: _deadlineStream, toReturn: drawDeadlinesAfterChecks),
             )
           ],
         ),
@@ -84,8 +81,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
     );
   }
 
-  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot,
-      TextEditingController searchTextController) {
+  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot) {
     final data = snapshot.data!;
     if (data.length == 0) {
       return Center(child: Text("There is no data to display"));
@@ -94,7 +90,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
     final deadlines = snapshot.data!
         .where((deadline) => deadline.title
             .toLowerCase()
-            .contains(searchTextController.text.toLowerCase()))
+            .contains(_searchTextController.text.toLowerCase()))
         .toList();
 
     return DeadlineList(deadlines: deadlines);

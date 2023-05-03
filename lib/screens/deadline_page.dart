@@ -1,7 +1,6 @@
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
 import '../utils/date_formatter.dart';

@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/utils/string_formatter.dart';
 import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,11 +25,11 @@ class HomeHeader extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 24),
             ),
             Text(
-              "${dueToday.toString()} deadlines due today",
+              "${StringFormatter.handlePlural(dueToday, "Deadline")} due today",
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
             Text(
-              "${dueWeek.toString()} deadlines due this week",
+              "${StringFormatter.handlePlural(dueWeek, "Deadline")} due this week",
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ],

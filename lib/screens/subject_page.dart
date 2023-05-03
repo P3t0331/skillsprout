@@ -1,6 +1,7 @@
 import 'package:deadline_tracker/screens/add_deadline_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
+import 'package:deadline_tracker/utils/string_formatter.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/join_leave_button.dart';
@@ -65,7 +66,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "32 members",
+                      "${StringFormatter.handlePlural(widget.subject.memberCount, "Member")}",
                       style: TextStyle(color: Colors.grey),
                     ),
                     Spacer(

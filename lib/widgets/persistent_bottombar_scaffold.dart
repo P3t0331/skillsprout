@@ -49,6 +49,7 @@ class _PersistentBottomBarScaffoldState
                   ))
               .toList(),
         ),
+        resizeToAvoidBottomInset: false,
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedTab,
           onTap: (index) {
