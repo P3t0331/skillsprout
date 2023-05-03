@@ -1,8 +1,6 @@
-import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
 import '../models/vote.dart';
@@ -26,13 +24,11 @@ class DeadlineVoteCard extends StatefulWidget {
 
 class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
   late final String _uid;
-  late final Future<String> _deadlineId;
 
   @override
   void initState() {
     super.initState();
     _uid = widget._authService.currentUser!.uid;
-    _deadlineId = widget._deadlineService.getDeadlineId(widget.deadline);
   }
 
   @override
@@ -60,15 +56,10 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
               _voteSum.toString(),
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
-            FutureBuilderHandler(
-              future: _deadlineId,
-              toReturn: (AsyncSnapshot<String> deadlineIdSnapshot) =>
-                  StreamBuilderHandler(
-                stream: widget._deadlineService
-                    .getUserVote(deadlineIdSnapshot.data!, _uid),
-                toReturn: (AsyncSnapshot<Vote> voteSnapshot) =>
-                    _buildVoteButtons(voteSnapshot, deadlineIdSnapshot),
-              ),
+            StreamBuilderHandler(
+              stream:
+                  widget._deadlineService.getUserVote(widget.deadline.id, _uid),
+              toReturn: _buildVoteButtons,
             ),
           ],
         ),
@@ -76,8 +67,7 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
     );
   }
 
-  Widget _buildVoteButtons(AsyncSnapshot<Vote> voteSnapshot,
-      AsyncSnapshot<String> deadlineIdSnapshot) {
+  Widget _buildVoteButtons(AsyncSnapshot<Vote> voteSnapshot) {
     return Column(
       children: [
         GestureDetector(
@@ -85,10 +75,10 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
               ? () {
                   if (voteSnapshot.data == Vote.upvote) {
                     widget._deadlineService
-                        .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+                        .changeVote(_uid, widget.deadline.id, Vote.none);
                   } else {
-                    widget._deadlineService.changeVote(
-                        _uid, deadlineIdSnapshot.data!, Vote.upvote);
+                    widget._deadlineService
+                        .changeVote(_uid, widget.deadline.id, Vote.upvote);
                   }
                 }
               : null,
@@ -106,10 +96,10 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
               ? () {
                   if (voteSnapshot.data == Vote.downvote) {
                     widget._deadlineService
-                        .changeVote(_uid, deadlineIdSnapshot.data!, Vote.none);
+                        .changeVote(_uid, widget.deadline.id, Vote.none);
                   } else {
-                    widget._deadlineService.changeVote(
-                        _uid, deadlineIdSnapshot.data!, Vote.downvote);
+                    widget._deadlineService
+                        .changeVote(_uid, widget.deadline.id, Vote.downvote);
                   }
                 }
               : null,

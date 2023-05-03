@@ -9,9 +9,9 @@ class IoCContainer {
   const IoCContainer._();
 
   static void setup() {
-    GetIt.I.registerSingleton(UserService());
-    GetIt.I.registerSingleton(Auth(GetIt.I<UserService>()));
     GetIt.I.registerSingleton(SubjectService());
     GetIt.I.registerSingleton(DeadlineService(GetIt.I<SubjectService>()));
+    GetIt.I.registerSingleton(UserService(GetIt.I<SubjectService>()));
+    GetIt.I.registerSingleton(Auth(GetIt.I<UserService>()));
   }
 }

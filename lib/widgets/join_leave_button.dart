@@ -5,29 +5,20 @@ import 'package:get_it/get_it.dart';
 import '../services/user_service.dart';
 
 class JoinLeaveButton extends StatelessWidget {
-  final AsyncSnapshot<bool?> snapshot;
+  final bool joinedSubject;
   final String uid;
   final String subjectId;
   final _userService = GetIt.I<UserService>();
 
   JoinLeaveButton(
       {super.key,
-      required this.snapshot,
+      required this.joinedSubject,
       required this.uid,
       required this.subjectId});
 
   @override
   Widget build(BuildContext context) {
-    if (snapshot.hasError) {
-      print(snapshot.error);
-      print("UID: ${uid}");
-      return Text("Error loading data");
-    }
-    if (!snapshot.hasData) {
-      return Text("No Data");
-    }
-    print("Snapshot data: ${snapshot.data}");
-    if (snapshot.data!) {
+    if (joinedSubject) {
       return LeaveButton(context);
     }
     return JoinButton(context);

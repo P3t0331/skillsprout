@@ -49,13 +49,15 @@ class DeadlineService {
       {required String title,
       required DateTime date,
       required String code,
+      required String authorId,
       String description = ""}) async {
     var subject = await _subjectService.getSubject(code);
     var deadline = Deadline(
         title: title,
         date: date,
         subjectRef: subject.id,
-        description: description);
+        description: description,
+        authorId: authorId);
     DocumentReference ref = await _deadlineCollection.add(deadline);
     await subject.update({
       'deadlineIds': FieldValue.arrayUnion([ref.id])

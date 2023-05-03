@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deadline_tracker/screens/add_deadline_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
-import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/join_leave_button.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
@@ -14,7 +13,6 @@ import '../models/subject.dart';
 import '../services/auth.dart';
 import '../services/deadline_service.dart';
 import '../services/user_service.dart';
-import '../widgets/decorated_container.dart';
 import '../widgets/page_container.dart';
 import '../widgets/streambuilder_handler.dart';
 
@@ -25,8 +23,8 @@ class SubjectPage extends StatefulWidget {
   final Subject subject;
   final List<Deadline> deadlines = [];
 
-  final _deadlineService = GetIt.I<DeadlineService>();
   final _subjectService = GetIt.I<SubjectService>();
+  final _deadlineService = GetIt.I<DeadlineService>();
   final _userService = GetIt.I<UserService>();
   final _authService = GetIt.I<Auth>();
 
@@ -34,17 +32,17 @@ class SubjectPage extends StatefulWidget {
 }
 
 class _SubjectPageState extends State<SubjectPage> {
-  late final Future<DocumentReference> _futureSubject;
   late final Stream<List<Deadline>> _deadlineListStream;
   late final String _uid;
+  late final bool _isAuthor;
 
   @override
   void initState() {
     super.initState();
     _uid = widget._authService.currentUser!.uid;
-    _futureSubject = widget._subjectService.getSubject(widget.subject.code);
     _deadlineListStream = widget._deadlineService
         .subjectDeadlineStream(subjectCode: widget.subject.code);
+    _isAuthor = _uid == widget.subject.authorId;
   }
 
   @override
@@ -52,61 +50,62 @@ class _SubjectPageState extends State<SubjectPage> {
     return Scaffold(
       appBar: AppBar(),
       body: PageContainer(
-        child: FutureBuilderHandler(
-          future: _futureSubject,
-          toReturn: (AsyncSnapshot<DocumentReference<Object?>> snapshot) {
-            final subjectId = snapshot.data!.id;
-            return StreamBuilderHandler(
-              stream: widget._userService.hasJoinedSubject(_uid, subjectId),
-              toReturn: (AsyncSnapshot<bool?> joinedSubjectSnapshot) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: StreamBuilderHandler(
+          stream: widget._userService.hasJoinedSubject(_uid, widget.subject.id),
+          toReturn: (AsyncSnapshot<bool?> joinedSubjectSnapshot) {
+            final bool joinedSubject = joinedSubjectSnapshot.data!;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TitleText(
+                  text: widget.subject.code + " " + widget.subject.name,
+                  fontSize: 32,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TitleText(
-                      text: widget.subject.code + " " + widget.subject.name,
-                      fontSize: 32,
+                    Text(
+                      "32 members",
+                      style: TextStyle(color: Colors.grey),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "32 members",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        JoinLeaveButton(
-                            snapshot: joinedSubjectSnapshot,
-                            uid: _uid,
-                            subjectId: subjectId),
-                      ],
+                    Spacer(
+                      flex: 5,
                     ),
-                    SizedBox(
-                      height: 10,
+                    _isAuthor ? deleteButton() : Container(),
+                    Spacer(
+                      flex: 1,
                     ),
-                    Divider(),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    HorizontalButton(
-                      text: "Create deadline",
-                      isDisabled: !joinedSubjectSnapshot.data!,
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                AddDeadlinePage()));
-                      },
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      child: deadlineTabs(joinedSubjectSnapshot.data!),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    JoinLeaveButton(
+                        joinedSubject: joinedSubject,
+                        uid: _uid,
+                        subjectId: widget.subject.id),
                   ],
-                );
-              },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Divider(),
+                SizedBox(
+                  height: 10,
+                ),
+                HorizontalButton(
+                  text: "Create deadline",
+                  isDisabled: !joinedSubject,
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => AddDeadlinePage()));
+                  },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                  child: deadlineTabs(joinedSubject),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
             );
           },
         ),
@@ -163,6 +162,22 @@ class _SubjectPageState extends State<SubjectPage> {
               )
             : Center(child: Text("There is no data to display")),
       ],
+    );
+  }
+
+  Widget deleteButton() {
+    return ElevatedButton(
+      onPressed: () {
+        ShowDialogUtils.showConfirmDialog(
+            context,
+            "Delete subject ${widget.subject.code}?",
+            "This will permanently delete this subject and all of it's deadlines",
+            () {
+          widget._subjectService.deleteSubject(widget.subject.id);
+          Navigator.of(context).pop();
+        });
+      },
+      child: Text("Delete"),
     );
   }
 }

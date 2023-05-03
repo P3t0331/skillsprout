@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/subject.dart';
+import '../services/auth.dart';
 import '../services/subject_service.dart';
 import '../utils/show_dialog_utils.dart';
 import '../widgets/decorated_container.dart';
@@ -20,10 +22,19 @@ class AddSubjectPage extends StatefulWidget {
 
 class _AddSubjectPageState extends State<AddSubjectPage> {
   final _subjectService = GetIt.I<SubjectService>();
+  final _authService = GetIt.I<Auth>();
 
   final _subjectCodeEditingController = TextEditingController();
 
   final _subjectNameEditingController = TextEditingController();
+
+  late final String _uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _uid = _authService.currentUser!.uid;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +85,16 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
       ShowDialogUtils.showInfoDialog(
           context, 'Error', 'Code or Name cant be empty');
     } else {
-      _subjectService.createSubject(Subject(
-          code: _subjectCodeEditingController.text,
-          name: _subjectNameEditingController.text));
+      _subjectService.createSubject(
+        Subject(
+            code: _subjectCodeEditingController.text,
+            name: _subjectNameEditingController.text,
+            authorId: _uid),
+      );
       _subjectCodeEditingController.clear();
       _subjectNameEditingController.clear();
+      ShowDialogUtils.showInfoDialog(
+          context, "Success", "Successfully created subject");
     }
   }
 
@@ -122,8 +138,18 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
         itemCount: subjects.length,
         itemBuilder: (BuildContext context, int index) {
           return DecoratedContainer(
-            child: Text(
-              subjects[index].code + " " + subjects[index].name,
+            child: InkWell(
+              onTap: () {
+                final subjectPage = MaterialPageRoute(
+                  builder: (BuildContext context) => SubjectPage(
+                    subject: subjects[index],
+                  ),
+                );
+                Navigator.of(context).push(subjectPage);
+              },
+              child: Text(
+                subjects[index].code + " " + subjects[index].name,
+              ),
             ),
           );
         },

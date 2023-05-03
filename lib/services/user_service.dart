@@ -1,8 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deadline_tracker/services/subject_service.dart';
 
 import '../models/app_user.dart';
 
 class UserService {
+  final SubjectService _subjectService;
+
+  UserService(this._subjectService);
+
   final _userCollection = FirebaseFirestore.instance
       .collection('users')
       .withConverter(fromFirestore: (snapshot, options) {
@@ -33,7 +38,7 @@ class UserService {
   }
 
   Future<void> joinSubject(String uid, String subjectId) {
-    print("Joining subject with id: ${subjectId} for user ID: ${uid}");
+    _subjectService.changeSubjectMemberCount(subjectId, 1);
     return _userCollection.doc(uid).update(
       {
         'subjectIds': FieldValue.arrayUnion([subjectId])
@@ -42,7 +47,7 @@ class UserService {
   }
 
   Future<void> leaveSubject(String uid, String subjectId) {
-    print("Leaving subject with id: ${subjectId} for user ID: ${uid}");
+    _subjectService.changeSubjectMemberCount(subjectId, -1);
     return _userCollection.doc(uid).update(
       {
         'subjectIds': FieldValue.arrayRemove([subjectId])

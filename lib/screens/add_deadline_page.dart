@@ -37,7 +37,6 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
   String? dropdownValue = null;
 
   late final Future<List<String>> _futureUserSubjectIds;
-  late final Future<List<Subject>> _futureSubjects;
   late final String _uid;
 
   @override
@@ -161,7 +160,8 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
                       title: _deadlineTitleEditingController.text,
                       date: time,
                       code: dropdownValue!,
-                      description: _deadlineDescriptionEditingController.text);
+                      description: _deadlineDescriptionEditingController.text,
+                      authorId: _uid);
                   ShowDialogUtils.showInfoDialog(
                       context, 'Success', 'Deadline added Successfully');
                   Navigator.of(context).pop();
