@@ -1,6 +1,10 @@
+import 'package:deadline_tracker/models/deadline.dart';
 import 'package:deadline_tracker/screens/add_subject_page.dart';
 import 'package:deadline_tracker/screens/subject_page.dart';
+import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/services/user_service.dart';
+import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
@@ -11,11 +15,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/subject.dart';
+import '../services/auth.dart';
 import '../widgets/add_button.dart';
 import 'add_deadline_page.dart';
 
 class HomePage extends StatelessWidget {
   final _subjectService = GetIt.I<SubjectService>();
+  final _deadlineService = GetIt.I<DeadlineService>();
+  final _authService = GetIt.I<Auth>();
+  final _userService = GetIt.I<UserService>();
+  late final String _uid = _authService.currentUser!.uid;
   HomePage({super.key});
 
   @override
@@ -37,14 +46,11 @@ class HomePage extends StatelessWidget {
           SizedBox(
             height: 20,
           ),
-          HomeHeader(
-            dueToday: 1,
-            dueWeek: 3,
-          ),
+          getUserSubjectIds(toReturn: getRelevantDeadlines),
           SizedBox(
             height: 20,
           ),
-          TitleText(text: "Subjects"),
+          TitleText(text: "Joined Subjects"),
           _drawSubjects(),
           SizedBox(
             height: 20,
@@ -64,11 +70,16 @@ class HomePage extends StatelessWidget {
       child: Container(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
-          child: StreamBuilderHandler<List<Subject>>(
-              stream: _subjectService.subjectStream,
-              toReturn: drawSubjectsAfterChecks),
+          child: getUserSubjectIds(toReturn: getSubjects),
         ),
       ),
+    );
+  }
+
+  Widget getUserSubjectIds({required Function toReturn}) {
+    return StreamBuilderHandler<List<String>>(
+      stream: _userService.getUserSubjectIds(_uid),
+      toReturn: toReturn,
     );
   }
 
@@ -102,5 +113,42 @@ class HomePage extends StatelessWidget {
         height: 10,
       ),
     );
+  }
+
+  Widget getSubjects(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
+    return StreamBuilderHandler<List<Subject>>(
+        stream: _subjectService.getSubjectsById(subjectIdsSnapshot.data!),
+        toReturn: drawSubjectsAfterChecks);
+  }
+
+  Widget getRelevantDeadlines(AsyncSnapshot<List<String>> snapshot) {
+    var subjectIds = snapshot.data!;
+    return StreamBuilderHandler<List<Deadline>>(
+        stream: _deadlineService.deadlineStream(),
+        toReturn: (AsyncSnapshot<List<Deadline>> snapshot) {
+          int deadlinesTodayCount = 0;
+          int deadlinesThisWeekCount = 0;
+          var deadlines = snapshot.data!;
+          for (var deadline in deadlines) {
+            if (subjectIds.contains(deadline.subjectRef)) {
+              if (calculateDifference(deadline.date) == 0) {
+                deadlinesTodayCount++;
+              }
+              if (calculateDifference(deadline.date) > 0 &&
+                  calculateDifference(deadline.date) < 7) {
+                deadlinesThisWeekCount++;
+              }
+            }
+          }
+          return HomeHeader(
+              dueToday: deadlinesTodayCount, dueWeek: deadlinesThisWeekCount);
+        });
+  }
+
+  int calculateDifference(DateTime date) {
+    DateTime now = DateTime.now();
+    return DateTime(date.year, date.month, date.day)
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
   }
 }

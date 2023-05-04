@@ -6,6 +6,7 @@ import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get_it/get_it.dart';
 
@@ -16,8 +17,12 @@ import '../utils/date_formatter.dart';
 import '../widgets/decorated_container.dart';
 import '../widgets/futurebuilder_handler.dart';
 import '../widgets/input_field.dart';
+import '../widgets/streambuilder_handler.dart';
 
 class AddDeadlinePage extends StatefulWidget {
+  final Subject? subject;
+  AddDeadlinePage({super.key, this.subject});
+
   @override
   State<AddDeadlinePage> createState() => _AddDeadlinePageState();
 }
@@ -33,15 +38,17 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
 
   DateTime time = DateTime.now();
   String? dropdownValue = null;
+  bool _isButtonDisabled = true;
 
-  late final Future<List<String>> _futureUserSubjectIds;
   late final String _uid;
 
   @override
   void initState() {
     super.initState();
     _uid = _authService.currentUser!.uid;
-    _futureUserSubjectIds = _userService.getUserSubjectIds(_uid);
+    if (widget.subject != null) {
+      dropdownValue = widget.subject!.code;
+    }
   }
 
   @override
@@ -64,17 +71,9 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             SizedBox(
               height: 5,
             ),
-            FutureBuilderHandler(
-                future: _futureUserSubjectIds,
-                toReturn: (AsyncSnapshot<List<String>> subjectIdsSnapshot) {
-                  if (subjectIdsSnapshot.data!.isEmpty) {
-                    return Text("No subject registered");
-                  }
-                  return FutureBuilderHandler(
-                      future: _subjectService
-                          .getSubjectsById(subjectIdsSnapshot.data!),
-                      toReturn: drawDropdownFilterValuesAfterChecks);
-                }),
+            StreamBuilderHandler(
+                stream: _userService.getUserSubjectIds(_uid),
+                toReturn: getSubjectIds),
             SizedBox(
               height: 10,
             ),
@@ -87,35 +86,17 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             ),
             Row(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    DatePicker.showDatePicker(context,
-                        showTitleActions: true,
-                        minTime: DateTime(2023, 1, 1),
-                        maxTime: DateTime(2030, 12, 31),
-                        onChanged: (date) {}, onConfirm: (date) {
-                      setState(() {
-                        time = date;
-                      });
-                    }, currentTime: DateTime.now(), locale: LocaleType.en);
-                  },
-                  child: Text("Select date"),
-                ),
+                buildDateTimeButton(
+                    context: context,
+                    text: "Select date",
+                    minTime: DateTime(2023, 1, 1),
+                    maxTime: DateTime(2030, 12, 31),
+                    isDate: true),
                 SizedBox(
                   width: 20,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    DatePicker.showTimePicker(context,
-                        showTitleActions: true,
-                        onChanged: (date) {}, onConfirm: (date) {
-                      setState(() {
-                        time = date;
-                      });
-                    }, currentTime: DateTime.now(), locale: LocaleType.en);
-                  },
-                  child: Text("Select time"),
-                ),
+                buildDateTimeButton(
+                    context: context, text: "Select time", isDate: false),
               ],
             ),
             SizedBox(
@@ -145,32 +126,83 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             SizedBox(
               height: 20,
             ),
-            HorizontalButton(
-              text: "Create",
-              onTap: () {
-                if (dropdownValue == null) {
-                  ShowDialogUtils.showInfoDialog(
-                      context, "Error", "Subject can't be empty");
-                } else if (_deadlineTitleEditingController.text.isEmpty) {
-                  ShowDialogUtils.showInfoDialog(
-                      context, "Error", "Name can't be empty");
-                } else {
-                  _deadlineService.createDeadline(
-                      title: _deadlineTitleEditingController.text,
-                      date: time,
-                      code: dropdownValue!,
-                      description: _deadlineDescriptionEditingController.text,
-                      authorId: _uid);
-                  ShowDialogUtils.showInfoDialog(
-                      context, 'Success', 'Deadline added Successfully');
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
+            buildCreateButton(context),
           ],
         ),
       ),
     );
+  }
+
+  Widget buildCreateButton(BuildContext context) {
+    return HorizontalButton(
+      text: "Create",
+      isDisabled: _isButtonDisabled,
+      onTap: () {
+        if (dropdownValue == null) {
+          ShowDialogUtils.showInfoDialog(
+              context, "Error", "Subject can't be empty");
+        } else if (_deadlineTitleEditingController.text.isEmpty) {
+          ShowDialogUtils.showInfoDialog(
+              context, "Error", "Name can't be empty");
+        } else {
+          _deadlineService.createDeadline(
+              title: _deadlineTitleEditingController.text,
+              date: time,
+              code: dropdownValue!,
+              description: _deadlineDescriptionEditingController.text,
+              authorId: _uid);
+          ShowDialogUtils.showInfoDialog(
+              context, 'Success', 'Deadline added Successfully');
+          Navigator.of(context).pop();
+        }
+      },
+    );
+  }
+
+  Widget buildDateTimeButton(
+      {required BuildContext context,
+      required String text,
+      DateTime? minTime,
+      DateTime? maxTime,
+      required bool isDate}) {
+    return ElevatedButton(
+      onPressed: () {
+        if (isDate) {
+          DatePicker.showDatePicker(context,
+              showTitleActions: true,
+              minTime: DateTime(2023, 1, 1),
+              maxTime: DateTime(2030, 12, 31),
+              onChanged: (date) {}, onConfirm: (date) {
+            setState(() {
+              time = date;
+            });
+          }, currentTime: DateTime.now(), locale: LocaleType.en);
+        } else {
+          DatePicker.showTimePicker(context,
+              showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
+            setState(() {
+              time = date;
+            });
+          }, currentTime: DateTime.now(), locale: LocaleType.en);
+        }
+      },
+      child: Text(text),
+    );
+  }
+
+  Widget getSubjectIds(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
+    if (subjectIdsSnapshot.data!.isEmpty) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {
+            _isButtonDisabled = true;
+          }));
+      return Text("No subject registered");
+    }
+    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {
+          _isButtonDisabled = false;
+        }));
+    return StreamBuilderHandler(
+        stream: _subjectService.getSubjectsById(subjectIdsSnapshot.data!),
+        toReturn: drawDropdownFilterValuesAfterChecks);
   }
 
   Widget drawDropdownFilterValuesAfterChecks(

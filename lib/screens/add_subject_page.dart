@@ -86,22 +86,29 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  void onCreatePressed(BuildContext context) {
+  void onCreatePressed(BuildContext context) async {
     if (_subjectCodeEditingController.text.isEmpty ||
         _subjectNameEditingController.text.isEmpty) {
       ShowDialogUtils.showInfoDialog(
           context, 'Error', 'Code or Name cant be empty');
     } else {
-      _subjectService.createSubject(
-        Subject(
-            code: _subjectCodeEditingController.text,
-            name: _subjectNameEditingController.text,
-            authorId: _uid),
-      );
+      var foundSubject = await _subjectService
+          .getSubjectByCode(_subjectCodeEditingController.text);
+      if (foundSubject == null) {
+        _subjectService.createSubject(
+          Subject(
+              code: _subjectCodeEditingController.text,
+              name: _subjectNameEditingController.text,
+              authorId: _uid),
+        );
+        ShowDialogUtils.showInfoDialog(
+            context, "Success", "Successfully created subject");
+      } else {
+        ShowDialogUtils.showInfoDialog(context, "Error",
+            "Subject with this code already exists: ${_subjectCodeEditingController.text}");
+      }
       _subjectCodeEditingController.clear();
       _subjectNameEditingController.clear();
-      ShowDialogUtils.showInfoDialog(
-          context, "Success", "Successfully created subject");
     }
   }
 

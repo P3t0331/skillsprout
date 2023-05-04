@@ -42,7 +42,7 @@ class _SubjectPageState extends State<SubjectPage> {
     super.initState();
     _uid = widget._authService.currentUser!.uid;
     _deadlineListStream = widget._deadlineService
-        .subjectDeadlineStream(subjectCode: widget.subject.code);
+        .subjectDeadlineStream(subjectId: widget.subject.id);
     _isAuthor = _uid == widget.subject.authorId;
   }
 
@@ -94,7 +94,9 @@ class _SubjectPageState extends State<SubjectPage> {
                   isDisabled: !joinedSubject,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => AddDeadlinePage()));
+                        builder: (BuildContext context) => AddDeadlinePage(
+                              subject: widget.subject,
+                            )));
                   },
                 ),
                 SizedBox(

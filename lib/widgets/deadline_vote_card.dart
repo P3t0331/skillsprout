@@ -98,8 +98,12 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
                     widget._deadlineService
                         .changeVote(_uid, widget.deadline.id, Vote.none);
                   } else {
-                    widget._deadlineService
-                        .changeVote(_uid, widget.deadline.id, Vote.downvote);
+                    if (widget.deadline.downvoteIds.length == 2) {
+                      widget._deadlineService.deleteDeadline(widget.deadline);
+                    } else {
+                      widget._deadlineService
+                          .changeVote(_uid, widget.deadline.id, Vote.downvote);
+                    }
                   }
                 }
               : null,

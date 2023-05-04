@@ -51,11 +51,11 @@ class DeadlineService {
       required String code,
       required String authorId,
       String description = ""}) async {
-    var subject = await _subjectService.getSubject(code);
+    var subject = await _subjectService.getSubjectByCode(code);
     var deadline = Deadline(
         title: title,
         date: date,
-        subjectRef: subject.id,
+        subjectRef: subject!.id,
         description: description,
         authorId: authorId);
     DocumentReference ref = await _deadlineCollection.add(deadline);
@@ -64,10 +64,8 @@ class DeadlineService {
     });
   }
 
-  Stream<List<Deadline>> subjectDeadlineStream(
-      {required String subjectCode}) async* {
-    var subjectId = (await _subjectService.getSubject(subjectCode)).id;
-    yield* _deadlineCollection
+  Stream<List<Deadline>> subjectDeadlineStream({required String subjectId}) {
+    return _deadlineCollection
         .where('subjectRef', isEqualTo: subjectId)
         .snapshots()
         .map((querySnapshot) => querySnapshot.docs
@@ -75,8 +73,12 @@ class DeadlineService {
             .toList());
   }
 
-  Future<void> deleteDeadline(String deadlineId) {
-    return _deadlineCollection.doc(deadlineId).delete();
+  Future<void> deleteDeadline(Deadline deadline) async {
+    var subject = await _subjectService.getSubjectById(deadline.subjectRef);
+    await subject.update({
+      'deadlineIds': FieldValue.arrayRemove([deadline.id])
+    });
+    return _deadlineCollection.doc(deadline.id).delete();
   }
 
   Stream<Vote> getUserVote(String deadlineId, String uid) async* {
