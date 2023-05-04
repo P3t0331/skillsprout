@@ -17,6 +17,7 @@ class TimestampConverter implements JsonConverter<DateTime, Timestamp> {
 
 @JsonSerializable()
 class Deadline {
+  final String id;
   final String title;
   @TimestampConverter()
   final DateTime date;
@@ -24,11 +25,14 @@ class Deadline {
   final List<String> upvoteIds;
   final List<String> downvoteIds;
   final String subjectRef;
+  final String authorId;
 
   Deadline(
-      {required this.title,
+      {this.id = "",
+      required this.title,
       required this.date,
       required this.subjectRef,
+      required this.authorId,
       this.description = "",
       this.upvoteIds = const [],
       this.downvoteIds = const []});

@@ -3,11 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:deadline_tracker/services/auth.dart';
+import 'package:get_it/get_it.dart';
 
 class SettingsPage extends StatelessWidget {
+  final _authService = GetIt.I<Auth>();
+
   Future<void> _singOut(BuildContext context) async {
     try {
-      await Auth().signOut();
+      await _authService.signOut();
     } on FirebaseAuthException catch (e) {
       _showErrorDialog(e.message, context);
     }

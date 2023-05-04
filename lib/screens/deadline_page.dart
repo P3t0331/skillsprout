@@ -1,9 +1,9 @@
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../models/deadline.dart';
+import '../utils/date_formatter.dart';
 
 class DeadlinePage extends StatelessWidget {
   final Deadline deadline;
@@ -21,8 +21,7 @@ class DeadlinePage extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Text(
-                "Due: ${DateFormat('E, d MMM yyyy HH:mm').format(deadline.date)}"),
+            Text("Due: ${DateFormatter.formatDate(deadline.date)}"),
             SizedBox(
               height: 20,
             ),

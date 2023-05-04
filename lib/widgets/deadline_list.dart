@@ -9,8 +9,13 @@ import 'decorated_container.dart';
 class DeadlineList extends StatelessWidget {
   final List<Deadline> deadlines;
   final bool useVoteCards;
+  final bool enableVoting;
 
-  DeadlineList({super.key, required this.deadlines, this.useVoteCards = false});
+  DeadlineList(
+      {super.key,
+      required this.deadlines,
+      this.useVoteCards = false,
+      this.enableVoting = false});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,6 +23,7 @@ class DeadlineList extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: ListView.separated(
             shrinkWrap: true,
+            physics: ScrollPhysics(),
             itemCount: deadlines.length,
             itemBuilder: (BuildContext context, int index) {
               return InkWell(
@@ -29,13 +35,14 @@ class DeadlineList extends StatelessWidget {
                   );
                   Navigator.of(context).push(subjectPage);
                 },
-                child: DecoratedContainer(
-                  child: useVoteCards
-                      ? DeadlineVoteCard(deadline: deadlines[index])
-                      : DeadlineCard(
-                          deadline: deadlines[index],
-                        ),
-                ),
+                child: useVoteCards
+                    ? DeadlineVoteCard(
+                        deadline: deadlines[index],
+                        enableVoting: enableVoting,
+                      )
+                    : DeadlineCard(
+                        deadline: deadlines[index],
+                      ),
               );
             },
             separatorBuilder: (BuildContext context, int index) => SizedBox(

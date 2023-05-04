@@ -27,6 +27,13 @@ class SubjectService {
             .toList());
   }
 
+  Future<List<Subject>> getSubjectsById(List<String> subjectIds) async {
+    final querySnapshot = await _subjectCollection
+        .where(FieldPath.documentId, whereIn: subjectIds)
+        .get();
+    return querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList();
+  }
+
   Future<DocumentReference> getSubject(String code) async {
     return await FirebaseFirestore.instance
         .collection('subjects')
@@ -53,7 +60,36 @@ class SubjectService {
     return _subjectCollection.add(subject);
   }
 
-  Future<void> deleteSubject(String subjectId) {
+  Future<void> deleteSubject(String subjectId) async {
+    // Delete subject's deadlines
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection("deadlines")
+        .where("subjectRef", isEqualTo: subjectId)
+        .get();
+    final batch = FirebaseFirestore.instance.batch();
+    for (final doc in querySnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+
+    // Delete subjectID from user's registered subjects
+    final snapshot =
+        await await FirebaseFirestore.instance.collection("users").get();
+    for (final doc in snapshot.docs) {
+      await doc.reference.update(
+        {
+          "subjectIds": FieldValue.arrayRemove([subjectId])
+        },
+      );
+    }
+
+    // Delete subject
     return _subjectCollection.doc(subjectId).delete();
+  }
+
+  Future<void> changeSubjectMemberCount(String subjectId, int value) {
+    return _subjectCollection
+        .doc(subjectId)
+        .update({'memberCount': FieldValue.increment(value)});
   }
 }

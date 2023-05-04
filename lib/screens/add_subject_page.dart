@@ -1,3 +1,4 @@
+import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
@@ -6,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/subject.dart';
+import '../services/auth.dart';
 import '../services/subject_service.dart';
 import '../utils/show_dialog_utils.dart';
+import '../utils/string_formatter.dart';
 import '../widgets/decorated_container.dart';
 import '../widgets/input_field.dart';
 
@@ -20,14 +23,28 @@ class AddSubjectPage extends StatefulWidget {
 
 class _AddSubjectPageState extends State<AddSubjectPage> {
   final _subjectService = GetIt.I<SubjectService>();
+  final _authService = GetIt.I<Auth>();
 
   final _subjectCodeEditingController = TextEditingController();
 
   final _subjectNameEditingController = TextEditingController();
 
+  final _searchTextController = TextEditingController();
+  late final String _uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _uid = _authService.currentUser!.uid;
+    _searchTextController.addListener(() {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(),
       body: PageContainer(
         child: Column(
@@ -35,41 +52,31 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           children: [
             TitleText(text: "Crete new subject"),
             SizedBox(height: 20),
-            DecoratedContainer(
-                child: InputField(
-                  controller: _subjectCodeEditingController,
-                  hintText: "Code",
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0)),
+            InputField(
+              controller: _subjectCodeEditingController,
+              hintText: "Code",
+            ),
             SizedBox(height: 10),
-            DecoratedContainer(
-                child: InputField(
-                  controller: _subjectNameEditingController,
-                  hintText: "Name",
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0)),
-            SizedBox(height: 20),
-            DecoratedContainer(
-              child: HorizontalButton(
-                text: "Create",
-                onTap: () {
-                  onCreatePressed(context);
-                },
-              ),
-              useGradient: true,
-              padding: EdgeInsets.all(8.0),
+            InputField(
+              controller: _subjectNameEditingController,
+              hintText: "Name",
             ),
             SizedBox(height: 20),
+            HorizontalButton(
+              text: "Create",
+              onTap: () {
+                onCreatePressed(context);
+              },
+            ),
+            SizedBox(height: 10),
             Divider(),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             TitleText(text: "Search community subjects"),
             SizedBox(height: 10),
-            DecoratedContainer(
-              child: InputField(
-                hintText: "Search",
-                useSearchIcon: true,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+            InputField(
+              hintText: "Search",
+              useSearchIcon: true,
+              controller: _searchTextController,
             ),
             SizedBox(height: 20),
             _drawSearchResults(),
@@ -85,26 +92,39 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
       ShowDialogUtils.showInfoDialog(
           context, 'Error', 'Code or Name cant be empty');
     } else {
-      _subjectService.createSubject(Subject(
-          code: _subjectCodeEditingController.text,
-          name: _subjectNameEditingController.text));
+      _subjectService.createSubject(
+        Subject(
+            code: _subjectCodeEditingController.text,
+            name: _subjectNameEditingController.text,
+            authorId: _uid),
+      );
       _subjectCodeEditingController.clear();
       _subjectNameEditingController.clear();
+      ShowDialogUtils.showInfoDialog(
+          context, "Success", "Successfully created subject");
     }
   }
 
   Widget _drawSearchResults() {
-    //TODO change stream to show only relevant subjects based on search
     return StreamBuilderHandler<List<Subject>>(
         stream: _subjectService.subjectStream,
         toReturn: drawSearchResultHasData);
   }
 
   Widget drawSearchResultHasData(AsyncSnapshot<List<Subject>> snapshot) {
-    final subjects = snapshot.data!;
+    final subjects = snapshot.data!
+        .where((subject) =>
+            subject.code
+                .toLowerCase()
+                .contains(_searchTextController.text.toLowerCase()) ||
+            subject.name
+                .toLowerCase()
+                .contains(_searchTextController.text.toLowerCase()))
+        .toList();
+
     if (subjects.length == 0) {
       return Text(
-        "${subjects.length} Results found",
+        "0 Results found",
         style: TextStyle(color: Colors.grey),
       );
     }
@@ -113,7 +133,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${subjects.length} ${subjects.length == 1 ? 'Result' : 'Results'} found',
+            "${StringFormatter.handlePlural(subjects.length, "Result")} found",
             style: TextStyle(color: Colors.grey),
           ),
           Container(
@@ -129,17 +149,28 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
 
   ListView searchResultListView(List<Subject> subjects) {
     return ListView.separated(
-        shrinkWrap: true,
-        itemCount: subjects.length,
-        itemBuilder: (BuildContext context, int index) {
-          return DecoratedContainer(
+      shrinkWrap: true,
+      itemCount: subjects.length,
+      itemBuilder: (BuildContext context, int index) {
+        return DecoratedContainer(
+          child: InkWell(
+            onTap: () {
+              final subjectPage = MaterialPageRoute(
+                builder: (BuildContext context) => SubjectPage(
+                  subject: subjects[index],
+                ),
+              );
+              Navigator.of(context).push(subjectPage);
+            },
             child: Text(
               subjects[index].code + " " + subjects[index].name,
             ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) => SizedBox(
-              height: 10,
-            ));
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => SizedBox(
+        height: 10,
+      ),
+    );
   }
 }

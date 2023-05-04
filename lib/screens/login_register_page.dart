@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:deadline_tracker/services/auth.dart';
+import 'package:get_it/get_it.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool isLogin = true;
+  final _authService = GetIt.I<Auth>();
 
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
@@ -36,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> signInWithEmailAndPassword() async {
     try {
-      await Auth().signInWithEmailAndPassword(
+      await _authService.signInWithEmailAndPassword(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
       );
@@ -47,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> createUserWithEmailAndPassword() async {
     try {
-      await Auth().createUserWithEmailAndPassword(
+      await _authService.createUserWithEmailAndPassword(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
       );

@@ -7,7 +7,7 @@ class PageContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.only(bottom: 24.0, right: 24.0, left: 24.0),
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 500),
