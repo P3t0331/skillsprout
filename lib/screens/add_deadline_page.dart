@@ -80,6 +80,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
             InputField(
               controller: _deadlineTitleEditingController,
               hintText: "Name",
+              maxLength: 100,
             ),
             SizedBox(
               height: 5,

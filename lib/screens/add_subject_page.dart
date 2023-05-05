@@ -54,11 +54,13 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             SizedBox(height: 20),
             InputField(
               controller: _subjectCodeEditingController,
+              maxLength: 20,
               hintText: "Code",
             ),
             SizedBox(height: 10),
             InputField(
               controller: _subjectNameEditingController,
+              maxLength: 100,
               hintText: "Name",
             ),
             SizedBox(height: 20),
@@ -170,7 +172,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
               Navigator.of(context).push(subjectPage);
             },
             child: Text(
-              subjects[index].code + " " + subjects[index].name,
+              subjects[index].code + ": " + subjects[index].name,
             ),
           ),
         );

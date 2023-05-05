@@ -59,7 +59,7 @@ class _SubjectPageState extends State<SubjectPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TitleText(
-                  text: widget.subject.code + " " + widget.subject.name,
+                  text: widget.subject.code + ": " + widget.subject.name,
                   fontSize: 32,
                 ),
                 Row(

@@ -41,17 +41,19 @@ class _DeadlineVoteCardState extends State<DeadlineVoteCard> {
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.deadline.title),
-                Text(
-                  "Due: " + DateFormatter.formatDate(widget.deadline.date),
-                  style: TextStyle(color: Colors.grey),
-                )
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.deadline.title),
+                  Text(
+                    "Due: " + DateFormatter.formatDate(widget.deadline.date),
+                    style: TextStyle(color: Colors.grey),
+                  )
+                ],
+              ),
             ),
-            Spacer(),
+            SizedBox(width: 10),
             Text(
               _voteSum.toString(),
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
