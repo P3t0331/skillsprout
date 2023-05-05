@@ -1,4 +1,4 @@
-import 'package:deadline_tracker/screens/add_deadline_page.dart';
+import 'package:deadline_tracker/screens/add_edit_deadline_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/utils/string_formatter.dart';
@@ -94,7 +94,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   isDisabled: !joinedSubject,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => AddDeadlinePage(
+                        builder: (BuildContext context) => AddEditDeadlinePage(
                               subject: widget.subject,
                             )));
                   },

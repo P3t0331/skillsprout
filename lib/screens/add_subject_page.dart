@@ -89,10 +89,12 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   }
 
   void onCreatePressed(BuildContext context) async {
-    if (_subjectCodeEditingController.text.isEmpty ||
-        _subjectNameEditingController.text.isEmpty) {
+    if (_subjectCodeEditingController.text.trim().isEmpty ||
+        _subjectNameEditingController.text.trim().isEmpty) {
       ShowDialogUtils.showInfoDialog(
           context, 'Error', 'Code or Name cant be empty');
+      _subjectNameEditingController.clear();
+      _subjectCodeEditingController.clear();
     } else {
       var foundSubject = await _subjectService
           .getSubjectByCode(_subjectCodeEditingController.text);
@@ -146,9 +148,11 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             style: TextStyle(color: Colors.grey),
           ),
           Container(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(8.0),
-              child: searchResultListView(subjects),
+            child: Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(8.0),
+                child: searchResultListView(subjects),
+              ),
             ),
           ),
         ],
@@ -156,9 +160,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  ListView searchResultListView(List<Subject> subjects) {
+  Widget searchResultListView(List<Subject> subjects) {
     return ListView.separated(
       shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: subjects.length,
       itemBuilder: (BuildContext context, int index) {
         return DecoratedContainer(

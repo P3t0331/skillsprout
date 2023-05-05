@@ -17,7 +17,7 @@ import 'package:get_it/get_it.dart';
 import '../models/subject.dart';
 import '../services/auth.dart';
 import '../widgets/add_button.dart';
-import 'add_deadline_page.dart';
+import 'add_edit_deadline_page.dart';
 
 class HomePage extends StatelessWidget {
   final _subjectService = GetIt.I<SubjectService>();
@@ -32,36 +32,37 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 64.0),
       child: PageContainer(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HorizontalButton(
-            text: "Quick add",
-            onTap: () {
-              final addDeadlinePage = MaterialPageRoute(
-                  builder: (BuildContext context) => AddDeadlinePage());
-              Navigator.of(context).push(addDeadlinePage);
-            },
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          getUserSubjectIds(toReturn: getRelevantDeadlines),
-          SizedBox(
-            height: 20,
-          ),
-          TitleText(text: "Joined Subjects"),
-          _drawSubjects(),
-          SizedBox(
-            height: 20,
-          ),
-          AddButton(onTap: () {
-            final addSubjectPage = MaterialPageRoute(
-                builder: (BuildContext context) => AddSubjectPage());
-            Navigator.of(context).push(addSubjectPage);
-          })
-        ],
-      )),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            HorizontalButton(
+              text: "Quick add",
+              onTap: () {
+                final addDeadlinePage = MaterialPageRoute(
+                    builder: (BuildContext context) => AddEditDeadlinePage());
+                Navigator.of(context).push(addDeadlinePage);
+              },
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            getUserSubjectIds(toReturn: getRelevantDeadlines),
+            SizedBox(
+              height: 20,
+            ),
+            TitleText(text: "Joined Subjects"),
+            _drawSubjects(),
+            SizedBox(
+              height: 20,
+            ),
+            AddButton(onTap: () {
+              final addSubjectPage = MaterialPageRoute(
+                  builder: (BuildContext context) => AddSubjectPage());
+              Navigator.of(context).push(addSubjectPage);
+            })
+          ],
+        ),
+      ),
     );
   }
 

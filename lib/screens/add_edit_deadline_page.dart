@@ -1,4 +1,5 @@
 import 'package:deadline_tracker/models/subject.dart';
+import 'package:deadline_tracker/screens/deadline_page.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get_it/get_it.dart';
 
+import '../models/deadline.dart';
 import '../services/auth.dart';
 import '../services/subject_service.dart';
 import '../services/user_service.dart';
@@ -19,15 +21,16 @@ import '../widgets/futurebuilder_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/streambuilder_handler.dart';
 
-class AddDeadlinePage extends StatefulWidget {
+class AddEditDeadlinePage extends StatefulWidget {
   final Subject? subject;
-  AddDeadlinePage({super.key, this.subject});
+  final Deadline? deadlineToEdit;
+  AddEditDeadlinePage({super.key, this.subject, this.deadlineToEdit});
 
   @override
-  State<AddDeadlinePage> createState() => _AddDeadlinePageState();
+  State<AddEditDeadlinePage> createState() => _AddEditDeadlinePageState();
 }
 
-class _AddDeadlinePageState extends State<AddDeadlinePage> {
+class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
   final _subjectService = GetIt.I<SubjectService>();
   final _authService = GetIt.I<Auth>();
   final _deadlineService = GetIt.I<DeadlineService>();
@@ -36,9 +39,10 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
   final _deadlineTitleEditingController = TextEditingController();
   final _deadlineDescriptionEditingController = TextEditingController();
 
-  DateTime time = DateTime.now();
-  String? dropdownValue = null;
+  DateTime _time = DateTime.now();
+  String? _dropdownValue = null;
   bool _isButtonDisabled = true;
+  bool _isEdit = false;
 
   late final String _uid;
 
@@ -47,7 +51,15 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
     super.initState();
     _uid = _authService.currentUser!.uid;
     if (widget.subject != null) {
-      dropdownValue = widget.subject!.code;
+      _dropdownValue = widget.subject!.code;
+    }
+    // EDIT deadline
+    if (widget.deadlineToEdit != null) {
+      _deadlineTitleEditingController.text = widget.deadlineToEdit!.title;
+      _deadlineDescriptionEditingController.text =
+          widget.deadlineToEdit!.description;
+      _time = widget.deadlineToEdit!.date;
+      _isEdit = true;
     }
   }
 
@@ -60,7 +72,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TitleText(text: "Crete new deadline"),
+            TitleText(text: _isEdit ? "Update deadline" : "Crete new deadline"),
             SizedBox(
               height: 10,
             ),
@@ -104,7 +116,7 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
               height: 5,
             ),
             Text(
-              "Date: ${DateFormatter.formatDate(time)}",
+              "Date: ${DateFormatter.formatDate(_time)}",
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(
@@ -136,28 +148,46 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
 
   Widget buildCreateButton(BuildContext context) {
     return HorizontalButton(
-      text: "Create",
+      text: _isEdit ? "Update" : "Create",
       isDisabled: _isButtonDisabled,
       onTap: () {
-        if (dropdownValue == null) {
+        if (_dropdownValue == null) {
           ShowDialogUtils.showInfoDialog(
               context, "Error", "Subject can't be empty");
         } else if (_deadlineTitleEditingController.text.isEmpty) {
           ShowDialogUtils.showInfoDialog(
               context, "Error", "Name can't be empty");
         } else {
-          _deadlineService.createDeadline(
-              title: _deadlineTitleEditingController.text,
-              date: time,
-              code: dropdownValue!,
-              description: _deadlineDescriptionEditingController.text,
-              authorId: _uid);
-          ShowDialogUtils.showInfoDialog(
-              context, 'Success', 'Deadline added Successfully');
-          Navigator.of(context).pop();
+          _isEdit ? updateDeadline(context) : createDeadline(context);
         }
       },
     );
+  }
+
+  void createDeadline(BuildContext context) {
+    _deadlineService.createDeadline(
+        title: _deadlineTitleEditingController.text,
+        date: _time,
+        code: _dropdownValue!,
+        description: _deadlineDescriptionEditingController.text,
+        authorId: _uid);
+    ShowDialogUtils.showInfoDialog(
+        context, 'Success', 'Deadline added successfully');
+    Navigator.of(context).pop();
+  }
+
+  void updateDeadline(BuildContext context) {
+    _deadlineService.updateDeadline(
+        deadlineId: widget.deadlineToEdit!.id,
+        title: _deadlineTitleEditingController.text,
+        date: _time,
+        code: _dropdownValue!,
+        description: _deadlineDescriptionEditingController.text);
+
+    ShowDialogUtils.showInfoDialog(
+        context, 'Success', 'Deadline updated successfully');
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   Widget buildDateTimeButton(
@@ -175,14 +205,14 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
               maxTime: DateTime(2030, 12, 31),
               onChanged: (date) {}, onConfirm: (date) {
             setState(() {
-              time = date;
+              _time = date;
             });
           }, currentTime: DateTime.now(), locale: LocaleType.en);
         } else {
           DatePicker.showTimePicker(context,
               showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
             setState(() {
-              time = date;
+              _time = date;
             });
           }, currentTime: DateTime.now(), locale: LocaleType.en);
         }
@@ -220,11 +250,11 @@ class _AddDeadlinePageState extends State<AddDeadlinePage> {
         onChanged: (String? value) {
           setState(
             () {
-              dropdownValue = value;
+              _dropdownValue = value;
             },
           );
         },
-        value: dropdownValue,
+        value: _dropdownValue,
         options: subjects,
       ),
     );

@@ -18,15 +18,6 @@ class SubjectService {
       _subjectCollection.snapshots().map((querySnapshot) =>
           querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList());
 
-  Stream<List<Subject>> subjectStreamByName(String name) {
-    return _subjectCollection
-        .where('name', isLessThanOrEqualTo: name)
-        .snapshots()
-        .map((querySnapshot) => querySnapshot.docs
-            .map((docSnapshot) => docSnapshot.data())
-            .toList());
-  }
-
   Stream<List<Subject>> getSubjectsById(List<String> subjectIds) {
     if (subjectIds.isEmpty) {
       return Stream.value([]);
@@ -64,15 +55,11 @@ class SubjectService {
     });
   }
 
-  Stream<bool> subjectAlreadyExists(String code) {
-    return _subjectCollection.where('code', isEqualTo: code).snapshots().map(
-        (querySnapshot) => !querySnapshot.docs
-            .map((docSnapshot) => docSnapshot.data())
-            .isEmpty);
-  }
-
-  Future<void> updateSubjectDeadlineIds(String id, List<String> newIds) {
-    return _subjectCollection.doc(id).update({'deadlineIds': newIds});
+  Future<Subject> getSubjectObjectById(String id) async {
+    return await _subjectCollection
+        .doc(id)
+        .get()
+        .then((querySnapshot) => querySnapshot.data()!);
   }
 
   Future<void> createSubject(Subject subject) {

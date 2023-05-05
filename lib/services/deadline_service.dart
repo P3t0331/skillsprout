@@ -34,17 +34,6 @@ class DeadlineService {
             .toList());
   }
 
-  Future<String> getDeadlineId(Deadline deadline) {
-    return _deadlineCollection
-        .where('title', isEqualTo: deadline.title)
-        .where('description', isEqualTo: deadline.description)
-        .where('date', isEqualTo: deadline.date)
-        .get()
-        .then((querySnapshot) {
-      return querySnapshot.docs.first.id;
-    });
-  }
-
   Future<void> createDeadline(
       {required String title,
       required DateTime date,
@@ -61,6 +50,23 @@ class DeadlineService {
     DocumentReference ref = await _deadlineCollection.add(deadline);
     await subject.update({
       'deadlineIds': FieldValue.arrayUnion([ref.id])
+    });
+  }
+
+  Future<void> updateDeadline(
+      {required String deadlineId,
+      required String title,
+      required DateTime date,
+      required String code,
+      required String description}) async {
+    var subject = await _subjectService.getSubjectByCode(code);
+    _deadlineCollection.doc(deadlineId).update({
+      'title': title,
+      'date': date,
+      'description': description,
+      'subjectRef': subject!.id,
+      'upvoteIds': [],
+      'downvoteIds': [],
     });
   }
 
