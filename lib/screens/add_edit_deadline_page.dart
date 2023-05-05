@@ -154,9 +154,10 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
         if (_dropdownValue == null) {
           ShowDialogUtils.showInfoDialog(
               context, "Error", "Subject can't be empty");
-        } else if (_deadlineTitleEditingController.text.isEmpty) {
+        } else if (_deadlineTitleEditingController.text.trim().isEmpty) {
           ShowDialogUtils.showInfoDialog(
               context, "Error", "Name can't be empty");
+          _deadlineTitleEditingController.clear();
         } else {
           _isEdit ? updateDeadline(context) : createDeadline(context);
         }
