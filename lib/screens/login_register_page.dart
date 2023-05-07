@@ -18,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  final TextEditingController _controllerName = TextEditingController();
 
   Future<void> _showErrorDialog(String? text) async {
     return showDialog(
@@ -51,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await _authService.createUserWithEmailAndPassword(
         email: _controllerEmail.text,
+        name: _controllerName.text,
         password: _controllerPassword.text,
       );
     } on FirebaseAuthException catch (e) {
@@ -110,6 +112,10 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _entryField(title: 'email', controller: _controllerEmail),
+            isLogin ? SizedBox(height: 0) : SizedBox(height: 20),
+            isLogin
+                ? SizedBox(height: 0)
+                : _entryField(title: 'name', controller: _controllerName),
             SizedBox(height: 20),
             _entryField(
                 title: 'password',

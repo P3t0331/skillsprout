@@ -1,4 +1,4 @@
-import 'package:deadline_tracker/screens/add_deadline_page.dart';
+import 'package:deadline_tracker/screens/add_edit_deadline_page.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/utils/string_formatter.dart';
@@ -42,7 +42,7 @@ class _SubjectPageState extends State<SubjectPage> {
     super.initState();
     _uid = widget._authService.currentUser!.uid;
     _deadlineListStream = widget._deadlineService
-        .subjectDeadlineStream(subjectCode: widget.subject.code);
+        .subjectDeadlineStream(subjectId: widget.subject.id);
     _isAuthor = _uid == widget.subject.authorId;
   }
 
@@ -59,7 +59,7 @@ class _SubjectPageState extends State<SubjectPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TitleText(
-                  text: widget.subject.code + " " + widget.subject.name,
+                  text: widget.subject.code + ": " + widget.subject.name,
                   fontSize: 32,
                 ),
                 Row(
@@ -94,7 +94,9 @@ class _SubjectPageState extends State<SubjectPage> {
                   isDisabled: !joinedSubject,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => AddDeadlinePage()));
+                        builder: (BuildContext context) => AddEditDeadlinePage(
+                              subject: widget.subject,
+                            )));
                   },
                 ),
                 SizedBox(

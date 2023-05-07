@@ -23,20 +23,17 @@ class Auth {
         email: email, password: password);
   }
 
-  Future<void> createUserWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> createUserWithEmailAndPassword(
+      {required String email,
+      required String password,
+      required String name}) async {
     await _firebaseAuth
         .createUserWithEmailAndPassword(email: email, password: password)
         .then((userCredential) {
       // Add user to Firestore database
       User fireBaseUser = userCredential.user!;
-      AppUser user = AppUser(name: "temp name", email: fireBaseUser.email!);
+      AppUser user = AppUser(name: name, email: fireBaseUser.email!);
       _userService.createUser(user, fireBaseUser.uid);
-    }).catchError((error) {
-      //Handle error
-      print("Error creating user");
     });
   }
 

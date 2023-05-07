@@ -14,15 +14,17 @@ class SubjectCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(subject.code + " " + subject.name),
-                Text(
-                    "${subject.deadlineIds.length.toString()} ${subject.deadlineIds.length == 1 ? "deadline" : "deadlines"}",
-                    style: TextStyle(color: Colors.grey))
-              ]),
+          Expanded(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(subject.code + ": " + subject.name),
+                  Text(
+                      "${subject.deadlineIds.length.toString()} ${subject.deadlineIds.length == 1 ? "deadline" : "deadlines"}",
+                      style: TextStyle(color: Colors.grey))
+                ]),
+          ),
           Icon(Icons.arrow_forward_ios_outlined)
         ],
       ),

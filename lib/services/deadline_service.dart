@@ -34,28 +34,17 @@ class DeadlineService {
             .toList());
   }
 
-  Future<String> getDeadlineId(Deadline deadline) {
-    return _deadlineCollection
-        .where('title', isEqualTo: deadline.title)
-        .where('description', isEqualTo: deadline.description)
-        .where('date', isEqualTo: deadline.date)
-        .get()
-        .then((querySnapshot) {
-      return querySnapshot.docs.first.id;
-    });
-  }
-
   Future<void> createDeadline(
       {required String title,
       required DateTime date,
       required String code,
       required String authorId,
       String description = ""}) async {
-    var subject = await _subjectService.getSubject(code);
+    var subject = await _subjectService.getSubjectByCode(code);
     var deadline = Deadline(
         title: title,
         date: date,
-        subjectRef: subject.id,
+        subjectRef: subject!.id,
         description: description,
         authorId: authorId);
     DocumentReference ref = await _deadlineCollection.add(deadline);
@@ -64,10 +53,25 @@ class DeadlineService {
     });
   }
 
-  Stream<List<Deadline>> subjectDeadlineStream(
-      {required String subjectCode}) async* {
-    var subjectId = (await _subjectService.getSubject(subjectCode)).id;
-    yield* _deadlineCollection
+  Future<void> updateDeadline(
+      {required String deadlineId,
+      required String title,
+      required DateTime date,
+      required String code,
+      required String description}) async {
+    var subject = await _subjectService.getSubjectByCode(code);
+    _deadlineCollection.doc(deadlineId).update({
+      'title': title,
+      'date': date,
+      'description': description,
+      'subjectRef': subject!.id,
+      'upvoteIds': [],
+      'downvoteIds': [],
+    });
+  }
+
+  Stream<List<Deadline>> subjectDeadlineStream({required String subjectId}) {
+    return _deadlineCollection
         .where('subjectRef', isEqualTo: subjectId)
         .snapshots()
         .map((querySnapshot) => querySnapshot.docs
@@ -75,8 +79,12 @@ class DeadlineService {
             .toList());
   }
 
-  Future<void> deleteDeadline(String deadlineId) {
-    return _deadlineCollection.doc(deadlineId).delete();
+  Future<void> deleteDeadline(Deadline deadline) async {
+    var subject = await _subjectService.getSubjectById(deadline.subjectRef);
+    await subject.update({
+      'deadlineIds': FieldValue.arrayRemove([deadline.id])
+    });
+    return _deadlineCollection.doc(deadline.id).delete();
   }
 
   Stream<Vote> getUserVote(String deadlineId, String uid) async* {

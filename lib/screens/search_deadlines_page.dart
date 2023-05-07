@@ -1,4 +1,6 @@
 import 'package:deadline_tracker/services/deadline_service.dart';
+import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/services/user_service.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/input_field.dart';
@@ -12,25 +14,25 @@ import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/deadline.dart';
+import '../services/auth.dart';
 
 class SearchDeadlinesPage extends StatefulWidget {
   final _deadlineService = GetIt.I<DeadlineService>();
+  final _userService = GetIt.I<UserService>();
+  final _authService = GetIt.I<Auth>();
+  late final String _uid = _authService.currentUser!.uid;
 
   @override
   State<SearchDeadlinesPage> createState() => _SearchDeadlinesPageState();
 }
 
 class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
-  late Stream<List<Deadline>> _deadlineStream;
   final _searchTextController = TextEditingController();
   String dropdownValue = "Date";
 
   @override
   void initState() {
     super.initState();
-    _deadlineStream =
-        widget._deadlineService.deadlineStream(orderBy: dropdownValue);
-
     _searchTextController.addListener(() {
       setState(() {});
     });
@@ -72,8 +74,9 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: StreamBuilderHandler<List<Deadline>>(
-                  stream: _deadlineStream, toReturn: drawDeadlinesAfterChecks),
+              child: StreamBuilderHandler<List<String>>(
+                  stream: widget._userService.getUserSubjectIds(widget._uid),
+                  toReturn: drawDeadlinesAfterChecks),
             )
           ],
         ),
@@ -81,18 +84,22 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
     );
   }
 
-  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<Deadline>> snapshot) {
-    final data = snapshot.data!;
-    if (data.length == 0) {
-      return Center(child: Text("There is no data to display"));
-    }
-
-    final deadlines = snapshot.data!
-        .where((deadline) => deadline.title
-            .toLowerCase()
-            .contains(_searchTextController.text.toLowerCase()))
-        .toList();
-
-    return DeadlineList(deadlines: deadlines);
+  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<String>> snapshot) {
+    final subjectIds = snapshot.data!;
+    return StreamBuilderHandler(
+        stream: widget._deadlineService.deadlineStream(),
+        toReturn: (AsyncSnapshot<List<Deadline>> snapshot) {
+          var deadlines = snapshot.data!
+              .where((deadline) =>
+                  subjectIds.contains(deadline.subjectRef) &&
+                  deadline.title
+                      .toLowerCase()
+                      .contains(_searchTextController.text.toLowerCase()))
+              .toList();
+          if (deadlines.isEmpty) {
+            return Center(child: Text("There is no data to display"));
+          }
+          return DeadlineList(deadlines: deadlines);
+        });
   }
 }

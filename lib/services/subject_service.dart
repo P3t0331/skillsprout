@@ -18,42 +18,48 @@ class SubjectService {
       _subjectCollection.snapshots().map((querySnapshot) =>
           querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList());
 
-  Stream<List<Subject>> subjectStreamByName(String name) {
+  Stream<List<Subject>> getSubjectsById(List<String> subjectIds) {
+    if (subjectIds.isEmpty) {
+      return Stream.value([]);
+    }
     return _subjectCollection
-        .where('name', isLessThanOrEqualTo: name)
+        .where(FieldPath.documentId, whereIn: subjectIds)
         .snapshots()
         .map((querySnapshot) => querySnapshot.docs
             .map((docSnapshot) => docSnapshot.data())
             .toList());
   }
 
-  Future<List<Subject>> getSubjectsById(List<String> subjectIds) async {
-    final querySnapshot = await _subjectCollection
-        .where(FieldPath.documentId, whereIn: subjectIds)
-        .get();
-    return querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList();
-  }
-
-  Future<DocumentReference> getSubject(String code) async {
+  Future<DocumentReference?> getSubjectByCode(String code) async {
     return await FirebaseFirestore.instance
         .collection('subjects')
         .where('code', isEqualTo: code)
         .limit(1)
         .get()
         .then((QuerySnapshot snapshot) {
-      return snapshot.docs[0].reference;
+      if (snapshot.docs.length > 0) {
+        return snapshot.docs[0].reference;
+      } else {
+        return null;
+      }
     });
   }
 
-  Stream<bool> subjectAlreadyExists(String code) {
-    return _subjectCollection.where('code', isEqualTo: code).snapshots().map(
-        (querySnapshot) => !querySnapshot.docs
-            .map((docSnapshot) => docSnapshot.data())
-            .isEmpty);
+  Future<DocumentReference> getSubjectById(String id) async {
+    return await FirebaseFirestore.instance
+        .collection('subjects')
+        .doc(id)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      return snapshot.reference;
+    });
   }
 
-  Future<void> updateSubjectDeadlineIds(String id, List<String> newIds) {
-    return _subjectCollection.doc(id).update({'deadlineIds': newIds});
+  Future<Subject> getSubjectObjectById(String id) async {
+    return await _subjectCollection
+        .doc(id)
+        .get()
+        .then((querySnapshot) => querySnapshot.data()!);
   }
 
   Future<void> createSubject(Subject subject) {

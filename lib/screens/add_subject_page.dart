@@ -54,11 +54,13 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             SizedBox(height: 20),
             InputField(
               controller: _subjectCodeEditingController,
+              maxLength: 20,
               hintText: "Code",
             ),
             SizedBox(height: 10),
             InputField(
               controller: _subjectNameEditingController,
+              maxLength: 100,
               hintText: "Name",
             ),
             SizedBox(height: 20),
@@ -86,22 +88,31 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  void onCreatePressed(BuildContext context) {
-    if (_subjectCodeEditingController.text.isEmpty ||
-        _subjectNameEditingController.text.isEmpty) {
+  void onCreatePressed(BuildContext context) async {
+    if (_subjectCodeEditingController.text.trim().isEmpty ||
+        _subjectNameEditingController.text.trim().isEmpty) {
       ShowDialogUtils.showInfoDialog(
           context, 'Error', 'Code or Name cant be empty');
+      _subjectNameEditingController.clear();
+      _subjectCodeEditingController.clear();
     } else {
-      _subjectService.createSubject(
-        Subject(
-            code: _subjectCodeEditingController.text,
-            name: _subjectNameEditingController.text,
-            authorId: _uid),
-      );
+      var foundSubject = await _subjectService
+          .getSubjectByCode(_subjectCodeEditingController.text);
+      if (foundSubject == null) {
+        _subjectService.createSubject(
+          Subject(
+              code: _subjectCodeEditingController.text,
+              name: _subjectNameEditingController.text,
+              authorId: _uid),
+        );
+        ShowDialogUtils.showInfoDialog(
+            context, "Success", "Successfully created subject");
+      } else {
+        ShowDialogUtils.showInfoDialog(context, "Error",
+            "Subject with this code already exists: ${_subjectCodeEditingController.text}");
+      }
       _subjectCodeEditingController.clear();
       _subjectNameEditingController.clear();
-      ShowDialogUtils.showInfoDialog(
-          context, "Success", "Successfully created subject");
     }
   }
 
@@ -137,9 +148,11 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             style: TextStyle(color: Colors.grey),
           ),
           Container(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(8.0),
-              child: searchResultListView(subjects),
+            child: Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(8.0),
+                child: searchResultListView(subjects),
+              ),
             ),
           ),
         ],
@@ -147,9 +160,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  ListView searchResultListView(List<Subject> subjects) {
+  Widget searchResultListView(List<Subject> subjects) {
     return ListView.separated(
       shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: subjects.length,
       itemBuilder: (BuildContext context, int index) {
         return DecoratedContainer(
@@ -163,7 +177,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
               Navigator.of(context).push(subjectPage);
             },
             child: Text(
-              subjects[index].code + " " + subjects[index].name,
+              subjects[index].code + ": " + subjects[index].name,
             ),
           ),
         );
