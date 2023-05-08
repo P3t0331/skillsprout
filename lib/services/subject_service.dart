@@ -98,4 +98,8 @@ class SubjectService {
         .doc(subjectId)
         .update({'memberCount': FieldValue.increment(value)});
   }
+
+  Future<void> changeSubjectRequiredVotes(String subjectId, int value) {
+    return _subjectCollection.doc(subjectId).update({'requiredVotes': value});
+  }
 }
