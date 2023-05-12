@@ -1,9 +1,7 @@
 import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-import '../models/deadline.dart';
-import '../utils/date_formatter.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/utils/date_formatter.dart';
 
 class DeadlineCard extends StatelessWidget {
   final String? subjectName;

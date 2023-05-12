@@ -4,7 +4,6 @@ import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/services/user_service.dart';
-import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
@@ -14,10 +13,10 @@ import 'package:deadline_tracker/widgets/subject_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/subject.dart';
-import '../services/auth.dart';
-import '../widgets/add_button.dart';
-import 'add_edit_deadline_page.dart';
+import 'package:deadline_tracker/models/subject.dart';
+import 'package:deadline_tracker/services/auth.dart';
+import 'package:deadline_tracker/widgets/add_button.dart';
+import 'package:deadline_tracker/screens/add_edit_deadline_page.dart';
 
 class HomePage extends StatelessWidget {
   final _subjectService = GetIt.I<SubjectService>();
@@ -46,7 +45,7 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            getUserSubjectIds(toReturn: getRelevantDeadlines),
+            _getUserSubjectIds(toReturn: _getRelevantDeadlines),
             SizedBox(
               height: 20,
             ),
@@ -71,20 +70,20 @@ class HomePage extends StatelessWidget {
       child: Container(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
-          child: getUserSubjectIds(toReturn: getSubjects),
+          child: _getUserSubjectIds(toReturn: _getSubjects),
         ),
       ),
     );
   }
 
-  Widget getUserSubjectIds({required Function toReturn}) {
+  Widget _getUserSubjectIds({required Function toReturn}) {
     return StreamBuilderHandler<List<String>>(
       stream: _userService.getUserSubjectIds(_uid),
       toReturn: toReturn,
     );
   }
 
-  Widget drawSubjectsAfterChecks(AsyncSnapshot<List<Subject>> snapshot) {
+  Widget _drawSubjectsAfterChecks(AsyncSnapshot<List<Subject>> snapshot) {
     final data = snapshot.data!;
     if (data.length == 0) {
       return Center(child: Text("There is no data to display"));
@@ -116,13 +115,13 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget getSubjects(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
+  Widget _getSubjects(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
     return StreamBuilderHandler<List<Subject>>(
         stream: _subjectService.getSubjectsById(subjectIdsSnapshot.data!),
-        toReturn: drawSubjectsAfterChecks);
+        toReturn: _drawSubjectsAfterChecks);
   }
 
-  Widget getRelevantDeadlines(AsyncSnapshot<List<String>> snapshot) {
+  Widget _getRelevantDeadlines(AsyncSnapshot<List<String>> snapshot) {
     var subjectIds = snapshot.data!;
     return StreamBuilderHandler<List<Deadline>>(
         stream: _deadlineService.deadlineStream(),
@@ -132,11 +131,11 @@ class HomePage extends StatelessWidget {
           var deadlines = snapshot.data!;
           for (var deadline in deadlines) {
             if (subjectIds.contains(deadline.subjectRef)) {
-              if (calculateDifference(deadline.date) == 0) {
+              if (_calculateDifference(deadline.date) == 0) {
                 deadlinesTodayCount++;
               }
-              if (calculateDifference(deadline.date) > 0 &&
-                  calculateDifference(deadline.date) < 7) {
+              if (_calculateDifference(deadline.date) > 0 &&
+                  _calculateDifference(deadline.date) < 7) {
                 deadlinesThisWeekCount++;
               }
             }
@@ -146,7 +145,7 @@ class HomePage extends StatelessWidget {
         });
   }
 
-  int calculateDifference(DateTime date) {
+  int _calculateDifference(DateTime date) {
     DateTime now = DateTime.now();
     return DateTime(date.year, date.month, date.day)
         .difference(DateTime(now.year, now.month, now.day))

@@ -30,7 +30,7 @@ class SubjectService {
             .toList());
   }
 
-  Future<DocumentReference?> getSubjectByCode(String code) async {
+  Future<DocumentReference?> getSubjectReferenceByCode(String code) async {
     return await FirebaseFirestore.instance
         .collection('subjects')
         .where('code', isEqualTo: code)
@@ -45,7 +45,7 @@ class SubjectService {
     });
   }
 
-  Future<DocumentReference> getSubjectById(String id) async {
+  Future<DocumentReference> getSubjectReferenceById(String id) async {
     return await FirebaseFirestore.instance
         .collection('subjects')
         .doc(id)

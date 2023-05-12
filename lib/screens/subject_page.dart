@@ -3,6 +3,7 @@ import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/utils/string_formatter.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
+import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/input_field.dart';
 import 'package:deadline_tracker/widgets/join_leave_button.dart';
@@ -10,20 +11,19 @@ import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/deadline.dart';
-import '../models/subject.dart';
-import '../services/auth.dart';
-import '../services/deadline_service.dart';
-import '../services/user_service.dart';
-import '../widgets/page_container.dart';
-import '../widgets/streambuilder_handler.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/models/subject.dart';
+import 'package:deadline_tracker/services/auth.dart';
+import 'package:deadline_tracker/services/deadline_service.dart';
+import 'package:deadline_tracker/services/user_service.dart';
+import 'package:deadline_tracker/widgets/page_container.dart';
+import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 
 class SubjectPage extends StatefulWidget {
   @override
   State<SubjectPage> createState() => _SubjectPageState();
 
   final Subject subject;
-  final List<Deadline> deadlines = [];
 
   final _subjectService = GetIt.I<SubjectService>();
   final _deadlineService = GetIt.I<DeadlineService>();
@@ -63,30 +63,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   text: widget.subject.code + ": " + widget.subject.name,
                   fontSize: 32,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "${StringFormatter.handlePlural(widget.subject.memberCount, "Member")}",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    Spacer(
-                      flex: 1,
-                    ),
-                    changeVotesButton(context),
-                    Spacer(
-                      flex: 1,
-                    ),
-                    _isAuthor ? deleteButton() : Container(),
-                    Spacer(
-                      flex: 1,
-                    ),
-                    JoinLeaveButton(
-                        joinedSubject: joinedSubject,
-                        uid: _uid,
-                        subjectId: widget.subject.id),
-                  ],
-                ),
+                _buildMemberCountAndButtons(context, joinedSubject),
                 SizedBox(
                   height: 10,
                 ),
@@ -108,7 +85,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   height: 10,
                 ),
                 Expanded(
-                  child: deadlineTabs(joinedSubject),
+                  child: _deadlineTabs(joinedSubject),
                 ),
                 SizedBox(
                   height: 20,
@@ -121,7 +98,34 @@ class _SubjectPageState extends State<SubjectPage> {
     );
   }
 
-  Widget deadlineTabs(bool enableVoting) {
+  Widget _buildMemberCountAndButtons(BuildContext context, bool joinedSubject) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "${StringFormatter.handlePlural(widget.subject.memberCount, "Member")}",
+          style: TextStyle(color: Colors.grey),
+        ),
+        Spacer(
+          flex: 1,
+        ),
+        _isAuthor ? _changeVotesButton(context) : Container(),
+        Spacer(
+          flex: 1,
+        ),
+        _isAuthor ? _deleteButton() : Container(),
+        Spacer(
+          flex: 1,
+        ),
+        JoinLeaveButton(
+            joinedSubject: joinedSubject,
+            uid: _uid,
+            subjectId: widget.subject.id),
+      ],
+    );
+  }
+
+  Widget _deadlineTabs(bool enableVoting) {
     return DefaultTabController(
       length: 2,
       child: Column(
@@ -141,14 +145,14 @@ class _SubjectPageState extends State<SubjectPage> {
             child: StreamBuilderHandler<List<Deadline>>(
                 stream: _deadlineListStream,
                 toReturn: (AsyncSnapshot<List<Deadline>> snapshot) =>
-                    showDeadlinesAfterChecks(snapshot, enableVoting)),
+                    _showDeadlinesAfterChecks(snapshot, enableVoting)),
           )
         ],
       ),
     );
   }
 
-  Widget showDeadlinesAfterChecks(
+  Widget _showDeadlinesAfterChecks(
       AsyncSnapshot<List<Deadline>> snapshot, bool enableVoting) {
     final data = snapshot.data!;
     var approvedDeadlines = data
@@ -179,7 +183,7 @@ class _SubjectPageState extends State<SubjectPage> {
     );
   }
 
-  Widget deleteButton() {
+  Widget _deleteButton() {
     return ElevatedButton(
       onPressed: () {
         ShowDialogUtils.showConfirmDialog(
@@ -195,47 +199,58 @@ class _SubjectPageState extends State<SubjectPage> {
     );
   }
 
-  Widget changeVotesButton(BuildContext context) {
+  Widget _changeVotesButton(BuildContext context) {
     final TextEditingController _controller = new TextEditingController();
 
     return ElevatedButton(
-      onPressed: () {
-        showModalBottomSheet<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return Container(
-              padding: EdgeInsets.all(32.0),
-              child: Center(
-                child: Column(
-                  children: [
-                    Text(
-                        "${widget.subject.requiredVotes} votes are currently required for a deadline to be automatically approved"),
-                    Spacer(),
-                    InputField(
-                      hintText: "enter new amount",
-                      controller: _controller,
-                      numberField: true,
-                    ),
-                    Spacer(),
-                    HorizontalButton(
-                      text: "Update",
-                      onTap: () => onVoteChangePressed(_controller),
-                    ),
-                    Spacer(
-                      flex: 5,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      onPressed: () => _buildChangeVotesCard(context, _controller),
       child: Text("Change votes"),
     );
   }
 
-  void onVoteChangePressed(TextEditingController controller) {
+  void _buildChangeVotesCard(
+      BuildContext context, TextEditingController _controller) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(32.0),
+          child: Center(
+            child: Column(
+              children: [
+                FutureBuilderHandler(
+                  future: widget._subjectService
+                      .getSubjectObjectById(widget.subject.id),
+                  toReturn: (AsyncSnapshot<Subject> snapshot) {
+                    var requiredVotes = snapshot.data!.requiredVotes;
+                    return Text(
+                        "${requiredVotes} votes are currently required for"
+                        " a deadline to be automatically approved");
+                  },
+                ),
+                Spacer(),
+                InputField(
+                  hintText: "enter new amount",
+                  controller: _controller,
+                  numberField: true,
+                ),
+                Spacer(),
+                HorizontalButton(
+                  text: "Update",
+                  onTap: () => _onVoteChangePressed(_controller),
+                ),
+                Spacer(
+                  flex: 5,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _onVoteChangePressed(TextEditingController controller) {
     if (controller.text.isEmpty) {
       ShowDialogUtils.showInfoDialog(context, "Error", "Amound can't be empty");
       return;

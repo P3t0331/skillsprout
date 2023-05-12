@@ -6,34 +6,22 @@ import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/deadline.dart';
-import '../models/subject.dart';
-import '../services/auth.dart';
-import '../utils/date_formatter.dart';
-import '../utils/show_dialog_utils.dart';
-import 'add_edit_deadline_page.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/models/subject.dart';
+import 'package:deadline_tracker/services/auth.dart';
+import 'package:deadline_tracker/utils/date_formatter.dart';
+import 'package:deadline_tracker/utils/show_dialog_utils.dart';
+import 'package:deadline_tracker/screens/add_edit_deadline_page.dart';
 
-class DeadlinePage extends StatefulWidget {
+class DeadlinePage extends StatelessWidget {
   final Deadline deadline;
+
   DeadlinePage({super.key, required this.deadline});
+
   final _deadlineService = GetIt.I<DeadlineService>();
   final _subjectService = GetIt.I<SubjectService>();
   late final String _uid = GetIt.I<Auth>().currentUser!.uid;
   late final bool _canEdit = _uid == deadline.authorId;
-
-  @override
-  State<DeadlinePage> createState() => _DeadlinePageState();
-}
-
-class _DeadlinePageState extends State<DeadlinePage> {
-  late final Future<Subject> _futureSubject;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureSubject =
-        widget._subjectService.getSubjectObjectById(widget.deadline.subjectRef);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +32,13 @@ class _DeadlinePageState extends State<DeadlinePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TitleText(
-              text: widget.deadline.title,
+              text: deadline.title,
             ),
             SizedBox(
               height: 10,
             ),
             FutureBuilderHandler(
-              future: _futureSubject,
+              future: _subjectService.getSubjectObjectById(deadline.subjectRef),
               toReturn: (AsyncSnapshot<Subject> snapshot) {
                 final subject = snapshot.data!;
                 return TitleText(
@@ -63,11 +51,11 @@ class _DeadlinePageState extends State<DeadlinePage> {
               height: 10,
             ),
             FutureBuilderHandler(
-              future: _futureSubject,
+              future: _subjectService.getSubjectObjectById(deadline.subjectRef),
               toReturn: (AsyncSnapshot<Subject> snapshot) {
                 final subject = snapshot.data!;
-                final voteAmount = widget.deadline.upvoteIds.length -
-                    widget.deadline.downvoteIds.length;
+                final voteAmount =
+                    deadline.upvoteIds.length - deadline.downvoteIds.length;
                 return Row(
                   children: [
                     Text(
@@ -84,13 +72,13 @@ class _DeadlinePageState extends State<DeadlinePage> {
               height: 10,
             ),
             Text(
-              "Due: ${DateFormatter.formatDate(widget.deadline.date)}",
+              "Due: ${DateFormatter.formatDate(deadline.date)}",
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(
-              height: widget._canEdit ? 10 : 0,
+              height: _canEdit ? 10 : 0,
             ),
-            widget._canEdit
+            _canEdit
                 ? Row(
                     children: [
                       editButton(context),
@@ -113,9 +101,9 @@ class _DeadlinePageState extends State<DeadlinePage> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: widget.deadline.description.isEmpty
+                child: deadline.description.isEmpty
                     ? Text("No description provided")
-                    : Text(widget.deadline.description),
+                    : Text(deadline.description),
               ),
             )
           ],
@@ -129,9 +117,9 @@ class _DeadlinePageState extends State<DeadlinePage> {
       onPressed: () {
         ShowDialogUtils.showConfirmDialog(
             context,
-            "Delete deadline ${widget.deadline.title}?",
+            "Delete deadline ${deadline.title}?",
             "This will permanently delete this deadline.", () {
-          widget._deadlineService.deleteDeadline(widget.deadline);
+          _deadlineService.deleteDeadline(deadline);
           Navigator.of(context).pop();
         });
       },
@@ -142,11 +130,11 @@ class _DeadlinePageState extends State<DeadlinePage> {
   Widget editButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        var subject = await widget._subjectService
-            .getSubjectObjectById(widget.deadline.subjectRef);
+        var subject =
+            await _subjectService.getSubjectObjectById(deadline.subjectRef);
         final addDeadlinePage = MaterialPageRoute(
           builder: (BuildContext context) => AddEditDeadlinePage(
-            deadlineToEdit: widget.deadline,
+            deadlineToEdit: deadline,
             subject: subject,
           ),
         );
