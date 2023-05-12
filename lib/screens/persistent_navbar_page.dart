@@ -2,9 +2,9 @@ import 'package:deadline_tracker/screens/search_deadlines_page.dart';
 import 'package:deadline_tracker/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 
-import '../models/persistent_tab_item.dart';
-import '../widgets/persistent_bottombar_scaffold.dart';
-import 'home_page.dart';
+import 'package:deadline_tracker/models/persistent_tab_item.dart';
+import 'package:deadline_tracker/widgets/persistent_bottombar_scaffold.dart';
+import 'package:deadline_tracker/screens/home_page.dart';
 
 class PersistentBottomNavPage extends StatelessWidget {
   final _homeNavigatorKey = GlobalKey<NavigatorState>();

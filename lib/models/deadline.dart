@@ -3,18 +3,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'deadline.g.dart';
 
-class TimestampConverter implements JsonConverter<DateTime, Timestamp> {
-  const TimestampConverter();
-
-  @override
-  DateTime fromJson(Timestamp timestamp) {
-    return timestamp.toDate();
-  }
-
-  @override
-  Timestamp toJson(DateTime date) => Timestamp.fromDate(date);
-}
-
 @JsonSerializable()
 class Deadline {
   final String id;
@@ -41,4 +29,16 @@ class Deadline {
       _$DeadlineFromJson(json);
 
   Map<String, dynamic> toJson() => _$DeadlineToJson(this);
+}
+
+class TimestampConverter implements JsonConverter<DateTime, Timestamp> {
+  const TimestampConverter();
+
+  @override
+  DateTime fromJson(Timestamp timestamp) {
+    return timestamp.toDate();
+  }
+
+  @override
+  Timestamp toJson(DateTime date) => Timestamp.fromDate(date);
 }

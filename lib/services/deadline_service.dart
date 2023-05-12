@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deadline_tracker/models/deadline.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 
-import '../models/vote.dart';
+import '../models/enums/vote.dart';
 
 class DeadlineService {
   final SubjectService _subjectService;
@@ -40,7 +40,7 @@ class DeadlineService {
       required String code,
       required String authorId,
       String description = ""}) async {
-    var subject = await _subjectService.getSubjectByCode(code);
+    var subject = await _subjectService.getSubjectReferenceByCode(code);
     var deadline = Deadline(
         title: title,
         date: date,
@@ -59,7 +59,7 @@ class DeadlineService {
       required DateTime date,
       required String code,
       required String description}) async {
-    var subject = await _subjectService.getSubjectByCode(code);
+    var subject = await _subjectService.getSubjectReferenceByCode(code);
     _deadlineCollection.doc(deadlineId).update({
       'title': title,
       'date': date,
@@ -80,7 +80,8 @@ class DeadlineService {
   }
 
   Future<void> deleteDeadline(Deadline deadline) async {
-    var subject = await _subjectService.getSubjectById(deadline.subjectRef);
+    var subject =
+        await _subjectService.getSubjectReferenceById(deadline.subjectRef);
     await subject.update({
       'deadlineIds': FieldValue.arrayRemove([deadline.id])
     });

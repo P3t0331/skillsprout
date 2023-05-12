@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/subject.dart';
+import 'package:deadline_tracker/models/subject.dart';
 import 'decorated_container.dart';
 
 class SubjectCard extends StatelessWidget {
@@ -21,7 +21,8 @@ class SubjectCard extends StatelessWidget {
                 children: [
                   Text(subject.code + ": " + subject.name),
                   Text(
-                      "${subject.deadlineIds.length.toString()} ${subject.deadlineIds.length == 1 ? "deadline" : "deadlines"}",
+                      "${subject.deadlineIds.length.toString()}"
+                      " ${subject.deadlineIds.length == 1 ? "deadline" : "deadlines"}",
                       style: TextStyle(color: Colors.grey))
                 ]),
           ),

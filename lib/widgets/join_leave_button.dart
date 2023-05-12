@@ -2,7 +2,7 @@ import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../services/user_service.dart';
+import 'package:deadline_tracker/services/user_service.dart';
 
 class JoinLeaveButton extends StatelessWidget {
   final bool joinedSubject;
@@ -19,23 +19,26 @@ class JoinLeaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (joinedSubject) {
-      return LeaveButton(context);
+      return _LeaveButton(context);
     }
-    return JoinButton(context);
+    return _JoinButton(context);
   }
 
-  Widget JoinButton(BuildContext context) {
+  Widget _JoinButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () {
           _userService.joinSubject(uid, subjectId).then((value) {
-            ShowDialogUtils.showInfoDialog(context, "Joined subject",
-                "You will receive push notifications when a new deadline is approved");
+            ShowDialogUtils.showInfoDialog(
+                context,
+                "Joined subject",
+                "You are now able to create new deadlines, "
+                    "or vote for existing ones");
           });
         },
         child: Text("Join"));
   }
 
-  Widget LeaveButton(BuildContext context) {
+  Widget _LeaveButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () {
           ShowDialogUtils.showConfirmDialog(context, "Leave subject",

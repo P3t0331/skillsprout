@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
         });
   }
 
-  Future<void> signInWithEmailAndPassword() async {
+  Future<void> _signInWithEmailAndPassword() async {
     try {
       await _authService.signInWithEmailAndPassword(
         email: _controllerEmail.text,
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> createUserWithEmailAndPassword() async {
+  Future<void> _createUserWithEmailAndPassword() async {
     try {
       await _authService.createUserWithEmailAndPassword(
         email: _controllerEmail.text,
@@ -81,8 +81,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return ElevatedButton(
         onPressed: isLogin
-            ? signInWithEmailAndPassword
-            : createUserWithEmailAndPassword,
+            ? _signInWithEmailAndPassword
+            : _createUserWithEmailAndPassword,
         child: Text(isLogin ? 'Login' : 'Register'));
   }
 

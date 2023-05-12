@@ -20,10 +20,6 @@ class UserService {
     return json;
   });
 
-  Stream<List<AppUser>> get userStream =>
-      _userCollection.snapshots().map((querySnapshot) =>
-          querySnapshot.docs.map((docSnapshot) => docSnapshot.data()).toList());
-
   Stream<List<String>> getUserSubjectIds(String uid) {
     return _userCollection
         .doc(uid)

@@ -1,5 +1,4 @@
 import 'package:deadline_tracker/models/subject.dart';
-import 'package:deadline_tracker/screens/deadline_page.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
@@ -11,15 +10,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/deadline.dart';
-import '../services/auth.dart';
-import '../services/subject_service.dart';
-import '../services/user_service.dart';
-import '../utils/date_formatter.dart';
-import '../widgets/decorated_container.dart';
-import '../widgets/futurebuilder_handler.dart';
-import '../widgets/input_field.dart';
-import '../widgets/streambuilder_handler.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/services/auth.dart';
+import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/services/user_service.dart';
+import 'package:deadline_tracker/utils/date_formatter.dart';
+import 'package:deadline_tracker/widgets/decorated_container.dart';
+import 'package:deadline_tracker/widgets/input_field.dart';
+import 'package:deadline_tracker/widgets/streambuilder_handler.dart';
 
 class AddEditDeadlinePage extends StatefulWidget {
   final Subject? subject;
@@ -85,7 +83,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
             ),
             StreamBuilderHandler(
                 stream: _userService.getUserSubjectIds(_uid),
-                toReturn: getSubjectIds),
+                toReturn: _getSubjectIds),
             SizedBox(
               height: 10,
             ),
@@ -99,7 +97,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
             ),
             Row(
               children: [
-                buildDateTimeButton(
+                _buildDateTimeButton(
                     context: context,
                     text: "Select date",
                     minTime: DateTime(2023, 1, 1),
@@ -108,7 +106,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
                 SizedBox(
                   width: 20,
                 ),
-                buildDateTimeButton(
+                _buildDateTimeButton(
                     context: context, text: "Select time", isDate: false),
               ],
             ),
@@ -139,14 +137,14 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
             SizedBox(
               height: 20,
             ),
-            buildCreateButton(context),
+            _buildCreateButton(context),
           ],
         ),
       ),
     );
   }
 
-  Widget buildCreateButton(BuildContext context) {
+  Widget _buildCreateButton(BuildContext context) {
     return HorizontalButton(
       text: _isEdit ? "Update" : "Create",
       isDisabled: _isButtonDisabled,
@@ -159,13 +157,13 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
               context, "Error", "Name can't be empty");
           _deadlineTitleEditingController.clear();
         } else {
-          _isEdit ? updateDeadline(context) : createDeadline(context);
+          _isEdit ? _updateDeadline(context) : _createDeadline(context);
         }
       },
     );
   }
 
-  void createDeadline(BuildContext context) {
+  void _createDeadline(BuildContext context) {
     _deadlineService.createDeadline(
         title: _deadlineTitleEditingController.text,
         date: _time,
@@ -177,7 +175,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
     Navigator.of(context).pop();
   }
 
-  void updateDeadline(BuildContext context) {
+  void _updateDeadline(BuildContext context) {
     _deadlineService.updateDeadline(
         deadlineId: widget.deadlineToEdit!.id,
         title: _deadlineTitleEditingController.text,
@@ -191,7 +189,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
     Navigator.of(context).pop();
   }
 
-  Widget buildDateTimeButton(
+  Widget _buildDateTimeButton(
       {required BuildContext context,
       required String text,
       DateTime? minTime,
@@ -222,7 +220,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
     );
   }
 
-  Widget getSubjectIds(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
+  Widget _getSubjectIds(AsyncSnapshot<List<String>> subjectIdsSnapshot) {
     if (subjectIdsSnapshot.data!.isEmpty) {
       SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {
             _isButtonDisabled = true;
@@ -234,10 +232,10 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
         }));
     return StreamBuilderHandler(
         stream: _subjectService.getSubjectsById(subjectIdsSnapshot.data!),
-        toReturn: drawDropdownFilterValuesAfterChecks);
+        toReturn: _drawDropdownFilterValuesAfterChecks);
   }
 
-  Widget drawDropdownFilterValuesAfterChecks(
+  Widget _drawDropdownFilterValuesAfterChecks(
       AsyncSnapshot<List<Subject>> subjectSnapshot) {
     final data = subjectSnapshot.data!;
     if (data.length == 0) {

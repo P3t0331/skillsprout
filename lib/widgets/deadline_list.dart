@@ -2,9 +2,8 @@ import 'package:deadline_tracker/widgets/deadline_card.dart';
 import 'package:deadline_tracker/widgets/deadline_vote_card.dart';
 import 'package:flutter/material.dart';
 
-import '../models/deadline.dart';
-import '../screens/deadline_page.dart';
-import 'decorated_container.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/screens/deadline_page.dart';
 
 class DeadlineList extends StatelessWidget {
   final List<Deadline> deadlines;
@@ -22,32 +21,32 @@ class DeadlineList extends StatelessWidget {
       child: SingleChildScrollView(
         padding: EdgeInsets.all(8.0),
         child: ListView.separated(
-            shrinkWrap: true,
-            physics: ScrollPhysics(),
-            itemCount: deadlines.length,
-            itemBuilder: (BuildContext context, int index) {
-              return InkWell(
-                onTap: () {
-                  final subjectPage = MaterialPageRoute(
-                    builder: (BuildContext context) => DeadlinePage(
+          shrinkWrap: true,
+          physics: ScrollPhysics(),
+          itemCount: deadlines.length,
+          itemBuilder: (BuildContext context, int index) {
+            return InkWell(
+              onTap: () {
+                final subjectPage = MaterialPageRoute(
+                  builder: (BuildContext context) => DeadlinePage(
+                    deadline: deadlines[index],
+                  ),
+                );
+                Navigator.of(context).push(subjectPage);
+              },
+              child: useVoteCards
+                  ? DeadlineVoteCard(
+                      deadline: deadlines[index],
+                      enableVoting: enableVoting,
+                    )
+                  : DeadlineCard(
                       deadline: deadlines[index],
                     ),
-                  );
-                  Navigator.of(context).push(subjectPage);
-                },
-                child: useVoteCards
-                    ? DeadlineVoteCard(
-                        deadline: deadlines[index],
-                        enableVoting: enableVoting,
-                      )
-                    : DeadlineCard(
-                        deadline: deadlines[index],
-                      ),
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) => SizedBox(
-                  height: 20,
-                )),
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) =>
+              SizedBox(height: 20),
+        ),
       ),
     );
   }

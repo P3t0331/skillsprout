@@ -6,13 +6,13 @@ import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/subject.dart';
-import '../services/auth.dart';
-import '../services/subject_service.dart';
-import '../utils/show_dialog_utils.dart';
-import '../utils/string_formatter.dart';
-import '../widgets/decorated_container.dart';
-import '../widgets/input_field.dart';
+import 'package:deadline_tracker/models/subject.dart';
+import 'package:deadline_tracker/services/auth.dart';
+import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/utils/show_dialog_utils.dart';
+import 'package:deadline_tracker/utils/string_formatter.dart';
+import 'package:deadline_tracker/widgets/decorated_container.dart';
+import 'package:deadline_tracker/widgets/input_field.dart';
 
 class AddSubjectPage extends StatefulWidget {
   AddSubjectPage({super.key});
@@ -67,7 +67,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             HorizontalButton(
               text: "Create",
               onTap: () {
-                onCreatePressed(context);
+                _onCreatePressed(context);
               },
             ),
             SizedBox(height: 10),
@@ -88,7 +88,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  void onCreatePressed(BuildContext context) async {
+  void _onCreatePressed(BuildContext context) async {
     if (_subjectCodeEditingController.text.trim().isEmpty ||
         _subjectNameEditingController.text.trim().isEmpty) {
       ShowDialogUtils.showInfoDialog(
@@ -97,7 +97,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
       _subjectCodeEditingController.clear();
     } else {
       var foundSubject = await _subjectService
-          .getSubjectByCode(_subjectCodeEditingController.text);
+          .getSubjectReferenceByCode(_subjectCodeEditingController.text);
       if (foundSubject == null) {
         _subjectService.createSubject(
           Subject(
@@ -119,10 +119,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   Widget _drawSearchResults() {
     return StreamBuilderHandler<List<Subject>>(
         stream: _subjectService.subjectStream,
-        toReturn: drawSearchResultHasData);
+        toReturn: _drawSearchResultHasData);
   }
 
-  Widget drawSearchResultHasData(AsyncSnapshot<List<Subject>> snapshot) {
+  Widget _drawSearchResultHasData(AsyncSnapshot<List<Subject>> snapshot) {
     final subjects = snapshot.data!
         .where((subject) =>
             subject.code
@@ -151,7 +151,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
             child: Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(8.0),
-                child: searchResultListView(subjects),
+                child: _searchResultListView(subjects),
               ),
             ),
           ),
@@ -160,7 +160,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     );
   }
 
-  Widget searchResultListView(List<Subject> subjects) {
+  Widget _searchResultListView(List<Subject> subjects) {
     return ListView.separated(
       shrinkWrap: true,
       physics: ScrollPhysics(),

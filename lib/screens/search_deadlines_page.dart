@@ -1,5 +1,4 @@
 import 'package:deadline_tracker/services/deadline_service.dart';
-import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/services/user_service.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
@@ -13,8 +12,8 @@ import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:deadline_tracker/widgets/dropdown_filter.dart';
 import 'package:get_it/get_it.dart';
 
-import '../models/deadline.dart';
-import '../services/auth.dart';
+import 'package:deadline_tracker/models/deadline.dart';
+import 'package:deadline_tracker/services/auth.dart';
 
 class SearchDeadlinesPage extends StatefulWidget {
   final _deadlineService = GetIt.I<DeadlineService>();
@@ -76,7 +75,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
             Expanded(
               child: StreamBuilderHandler<List<String>>(
                   stream: widget._userService.getUserSubjectIds(widget._uid),
-                  toReturn: drawDeadlinesAfterChecks),
+                  toReturn: _drawDeadlinesAfterChecks),
             )
           ],
         ),
@@ -84,7 +83,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
     );
   }
 
-  Widget drawDeadlinesAfterChecks(AsyncSnapshot<List<String>> snapshot) {
+  Widget _drawDeadlinesAfterChecks(AsyncSnapshot<List<String>> snapshot) {
     final subjectIds = snapshot.data!;
     return StreamBuilderHandler(
         stream: widget._deadlineService.deadlineStream(),
@@ -98,6 +97,11 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
               .toList();
           if (deadlines.isEmpty) {
             return Center(child: Text("There is no data to display"));
+          }
+          if (dropdownValue == "Title") {
+            deadlines.sort((a, b) => a.title.compareTo(b.title));
+          } else {
+            deadlines.sort((a, b) => a.date.compareTo(b.date));
           }
           return DeadlineList(deadlines: deadlines);
         });
