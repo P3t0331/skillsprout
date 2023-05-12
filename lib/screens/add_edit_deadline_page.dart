@@ -98,24 +98,19 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
             Row(
               children: [
                 _buildDateTimeButton(
-                    context: context,
-                    text: "Select date",
-                    minTime: DateTime(2023, 1, 1),
-                    maxTime: DateTime(2030, 12, 31),
-                    isDate: true),
+                  context: context,
+                  text: "Select date",
+                  minTime: DateTime(2023, 1, 1),
+                  maxTime: DateTime(2030, 12, 31),
+                ),
                 SizedBox(
                   width: 20,
                 ),
-                _buildDateTimeButton(
-                    context: context, text: "Select time", isDate: false),
+                Text(
+                  "Date: ${DateFormatter.formatDate(_time)}",
+                  style: TextStyle(fontSize: 16),
+                )
               ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              "Date: ${DateFormatter.formatDate(_time)}",
-              style: TextStyle(fontSize: 16),
             ),
             SizedBox(
               height: 5,
@@ -193,28 +188,18 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
       {required BuildContext context,
       required String text,
       DateTime? minTime,
-      DateTime? maxTime,
-      required bool isDate}) {
+      DateTime? maxTime}) {
     return ElevatedButton(
       onPressed: () {
-        if (isDate) {
-          DatePicker.showDatePicker(context,
-              showTitleActions: true,
-              minTime: DateTime(2023, 1, 1),
-              maxTime: DateTime(2030, 12, 31),
-              onChanged: (date) {}, onConfirm: (date) {
-            setState(() {
-              _time = date;
-            });
-          }, currentTime: DateTime.now(), locale: LocaleType.en);
-        } else {
-          DatePicker.showTimePicker(context,
-              showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
-            setState(() {
-              _time = date;
-            });
-          }, currentTime: DateTime.now(), locale: LocaleType.en);
-        }
+        DatePicker.showDateTimePicker(context,
+            showTitleActions: true,
+            minTime: DateTime(2023, 1, 1),
+            maxTime: DateTime(2030, 12, 31),
+            onChanged: (date) {}, onConfirm: (date) {
+          setState(() {
+            _time = date;
+          });
+        }, currentTime: _time, locale: LocaleType.en);
       },
       child: Text(text),
     );
