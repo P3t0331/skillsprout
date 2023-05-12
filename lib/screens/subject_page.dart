@@ -4,6 +4,7 @@ import 'package:deadline_tracker/utils/show_dialog_utils.dart';
 import 'package:deadline_tracker/utils/string_formatter.dart';
 import 'package:deadline_tracker/widgets/deadline_list.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
+import 'package:deadline_tracker/widgets/input_field.dart';
 import 'package:deadline_tracker/widgets/join_leave_button.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +71,11 @@ class _SubjectPageState extends State<SubjectPage> {
                       style: TextStyle(color: Colors.grey),
                     ),
                     Spacer(
-                      flex: 5,
+                      flex: 1,
+                    ),
+                    changeVotesButton(context),
+                    Spacer(
+                      flex: 1,
                     ),
                     _isAuthor ? deleteButton() : Container(),
                     Spacer(
@@ -146,10 +151,16 @@ class _SubjectPageState extends State<SubjectPage> {
   Widget showDeadlinesAfterChecks(
       AsyncSnapshot<List<Deadline>> snapshot, bool enableVoting) {
     final data = snapshot.data!;
-    var approvedDeadlines =
-        data.where((element) => element.upvoteIds.length >= 3).toList();
-    var pendingDeadlines =
-        data.where((element) => element.upvoteIds.length < 3).toList();
+    var approvedDeadlines = data
+        .where((element) =>
+            element.upvoteIds.length - element.downvoteIds.length >=
+            widget.subject.requiredVotes)
+        .toList();
+    var pendingDeadlines = data
+        .where((element) =>
+            element.upvoteIds.length - element.downvoteIds.length <
+            widget.subject.requiredVotes)
+        .toList();
     return TabBarView(
       children: [
         approvedDeadlines.length != 0
@@ -182,5 +193,60 @@ class _SubjectPageState extends State<SubjectPage> {
       },
       child: Text("Delete"),
     );
+  }
+
+  Widget changeVotesButton(BuildContext context) {
+    final TextEditingController _controller = new TextEditingController();
+
+    return ElevatedButton(
+      onPressed: () {
+        showModalBottomSheet<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return Container(
+              padding: EdgeInsets.all(32.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                        "${widget.subject.requiredVotes} votes are currently required for a deadline to be automatically approved"),
+                    Spacer(),
+                    InputField(
+                      hintText: "enter new amount",
+                      controller: _controller,
+                      numberField: true,
+                    ),
+                    Spacer(),
+                    HorizontalButton(
+                      text: "Update",
+                      onTap: () => onVoteChangePressed(_controller),
+                    ),
+                    Spacer(
+                      flex: 5,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Text("Change votes"),
+    );
+  }
+
+  void onVoteChangePressed(TextEditingController controller) {
+    if (controller.text.isEmpty) {
+      ShowDialogUtils.showInfoDialog(context, "Error", "Amound can't be empty");
+      return;
+    }
+    widget._subjectService.changeSubjectRequiredVotes(
+      widget.subject.id,
+      int.parse(controller.text),
+    );
+    controller.clear();
+    Navigator.of(context).pop();
+    ShowDialogUtils.showInfoDialog(
+        context, "Success", "Required amount of votes changed");
   }
 }
