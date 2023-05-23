@@ -9,12 +9,14 @@ class DeadlineList extends StatelessWidget {
   final List<Deadline> deadlines;
   final bool useVoteCards;
   final bool enableVoting;
+  final bool showCode;
 
   DeadlineList(
       {super.key,
       required this.deadlines,
       this.useVoteCards = false,
-      this.enableVoting = false});
+      this.enableVoting = false,
+      this.showCode = false});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,6 +43,7 @@ class DeadlineList extends StatelessWidget {
                     )
                   : DeadlineCard(
                       deadline: deadlines[index],
+                      showCode: showCode,
                     ),
             );
           },

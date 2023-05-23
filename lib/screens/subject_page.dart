@@ -155,12 +155,12 @@ class _SubjectPageState extends State<SubjectPage> {
   Widget _showDeadlinesAfterChecks(
       AsyncSnapshot<List<Deadline>> snapshot, bool enableVoting) {
     final data = snapshot.data!;
-    var approvedDeadlines = data
+    final approvedDeadlines = data
         .where((element) =>
             element.upvoteIds.length - element.downvoteIds.length >=
             widget.subject.requiredVotes)
         .toList();
-    var pendingDeadlines = data
+    final pendingDeadlines = data
         .where((element) =>
             element.upvoteIds.length - element.downvoteIds.length <
             widget.subject.requiredVotes)
@@ -187,13 +187,14 @@ class _SubjectPageState extends State<SubjectPage> {
     return ElevatedButton(
       onPressed: () {
         ShowDialogUtils.showConfirmDialog(
-            context,
-            "Delete subject ${widget.subject.code}?",
-            "This will permanently delete this subject and all of it's deadlines",
-            () {
-          widget._subjectService.deleteSubject(widget.subject.id);
-          Navigator.of(context).pop();
-        });
+          context,
+          "Delete subject ${widget.subject.code}?",
+          "This will permanently delete this subject and all of it's deadlines",
+          () {
+            widget._subjectService.deleteSubject(widget.subject.id);
+            Navigator.of(context).pop();
+          },
+        );
       },
       child: Text("Delete"),
     );
@@ -222,7 +223,7 @@ class _SubjectPageState extends State<SubjectPage> {
                   future: widget._subjectService
                       .getSubjectObjectById(widget.subject.id),
                   toReturn: (AsyncSnapshot<Subject> snapshot) {
-                    var requiredVotes = snapshot.data!.requiredVotes;
+                    final requiredVotes = snapshot.data!.requiredVotes;
                     return Text(
                         "${requiredVotes} votes are currently required for"
                         " a deadline to be automatically approved");

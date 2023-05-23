@@ -40,8 +40,8 @@ class DeadlineService {
       required String code,
       required String authorId,
       String description = ""}) async {
-    var subject = await _subjectService.getSubjectReferenceByCode(code);
-    var deadline = Deadline(
+    final subject = await _subjectService.getSubjectReferenceByCode(code);
+    final deadline = Deadline(
         title: title,
         date: date,
         subjectRef: subject!.id,
@@ -59,7 +59,7 @@ class DeadlineService {
       required DateTime date,
       required String code,
       required String description}) async {
-    var subject = await _subjectService.getSubjectReferenceByCode(code);
+    final subject = await _subjectService.getSubjectReferenceByCode(code);
     _deadlineCollection.doc(deadlineId).update({
       'title': title,
       'date': date,
@@ -80,7 +80,7 @@ class DeadlineService {
   }
 
   Future<void> deleteDeadline(Deadline deadline) async {
-    var subject =
+    final subject =
         await _subjectService.getSubjectReferenceById(deadline.subjectRef);
     await subject.update({
       'deadlineIds': FieldValue.arrayRemove([deadline.id])

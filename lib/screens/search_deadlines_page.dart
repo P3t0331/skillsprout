@@ -54,6 +54,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
             TitleText(text: "Sort by"),
             SizedBox(height: 10),
             DecoratedContainer(
+              isExpanded: false,
               child: DropdownFilter(
                 onChanged: (String? value) {
                   setState(() {
@@ -88,7 +89,7 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
     return StreamBuilderHandler(
         stream: widget._deadlineService.deadlineStream(),
         toReturn: (AsyncSnapshot<List<Deadline>> snapshot) {
-          var deadlines = snapshot.data!
+          final deadlines = snapshot.data!
               .where((deadline) =>
                   subjectIds.contains(deadline.subjectRef) &&
                   deadline.title
@@ -103,7 +104,10 @@ class _SearchDeadlinesPageState extends State<SearchDeadlinesPage> {
           } else {
             deadlines.sort((a, b) => a.date.compareTo(b.date));
           }
-          return DeadlineList(deadlines: deadlines);
+          return DeadlineList(
+            deadlines: deadlines,
+            showCode: true,
+          );
         });
   }
 }

@@ -4,6 +4,7 @@ import 'package:deadline_tracker/screens/subject_page.dart';
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
 import 'package:deadline_tracker/services/user_service.dart';
+import 'package:deadline_tracker/utils/date_calculator.dart';
 import 'package:deadline_tracker/widgets/home_header.dart';
 import 'package:deadline_tracker/widgets/horizontal_button.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
@@ -34,17 +35,6 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            HorizontalButton(
-              text: "Quick add",
-              onTap: () {
-                final addDeadlinePage = MaterialPageRoute(
-                    builder: (BuildContext context) => AddEditDeadlinePage());
-                Navigator.of(context).push(addDeadlinePage);
-              },
-            ),
-            SizedBox(
-              height: 20,
-            ),
             _getUserSubjectIds(toReturn: _getRelevantDeadlines),
             SizedBox(
               height: 20,
@@ -54,11 +44,24 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            AddButton(onTap: () {
-              final addSubjectPage = MaterialPageRoute(
-                  builder: (BuildContext context) => AddSubjectPage());
-              Navigator.of(context).push(addSubjectPage);
-            })
+            AddButton(
+              onTap: () {
+                final addSubjectPage = MaterialPageRoute(
+                    builder: (BuildContext context) => AddSubjectPage());
+                Navigator.of(context).push(addSubjectPage);
+              },
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            HorizontalButton(
+              text: "Add deadline",
+              onTap: () {
+                final addDeadlinePage = MaterialPageRoute(
+                    builder: (BuildContext context) => AddEditDeadlinePage());
+                Navigator.of(context).push(addDeadlinePage);
+              },
+            ),
           ],
         ),
       ),
@@ -122,33 +125,27 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _getRelevantDeadlines(AsyncSnapshot<List<String>> snapshot) {
-    var subjectIds = snapshot.data!;
+    final subjectIds = snapshot.data!;
     return StreamBuilderHandler<List<Deadline>>(
-        stream: _deadlineService.deadlineStream(),
-        toReturn: (AsyncSnapshot<List<Deadline>> snapshot) {
-          int deadlinesTodayCount = 0;
-          int deadlinesThisWeekCount = 0;
-          var deadlines = snapshot.data!;
-          for (var deadline in deadlines) {
-            if (subjectIds.contains(deadline.subjectRef)) {
-              if (_calculateDifference(deadline.date) == 0) {
-                deadlinesTodayCount++;
-              }
-              if (_calculateDifference(deadline.date) > 0 &&
-                  _calculateDifference(deadline.date) < 7) {
-                deadlinesThisWeekCount++;
-              }
+      stream: _deadlineService.deadlineStream(),
+      toReturn: (AsyncSnapshot<List<Deadline>> snapshot) {
+        int deadlinesTodayCount = 0;
+        int deadlinesThisWeekCount = 0;
+        final deadlines = snapshot.data!;
+        for (final deadline in deadlines) {
+          if (subjectIds.contains(deadline.subjectRef)) {
+            if (DateCalculator.calculateDifference(deadline.date) == 0) {
+              deadlinesTodayCount++;
+            }
+            if (DateCalculator.calculateDifference(deadline.date) > 0 &&
+                DateCalculator.calculateDifference(deadline.date) < 7) {
+              deadlinesThisWeekCount++;
             }
           }
-          return HomeHeader(
-              dueToday: deadlinesTodayCount, dueWeek: deadlinesThisWeekCount);
-        });
-  }
-
-  int _calculateDifference(DateTime date) {
-    DateTime now = DateTime.now();
-    return DateTime(date.year, date.month, date.day)
-        .difference(DateTime(now.year, now.month, now.day))
-        .inDays;
+        }
+        return HomeHeader(
+            dueToday: deadlinesTodayCount, dueWeek: deadlinesThisWeekCount);
+      },
+    );
   }
 }
