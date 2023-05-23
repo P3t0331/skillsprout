@@ -229,6 +229,7 @@ class _AddEditDeadlinePageState extends State<AddEditDeadlinePage> {
 
     final subjects = subjectSnapshot.data!.map((e) => e.code).toList();
     return DecoratedContainer(
+      isExpanded: false,
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: DropdownFilter(
         onChanged: (String? value) {

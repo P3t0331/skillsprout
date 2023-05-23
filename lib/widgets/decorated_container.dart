@@ -10,17 +10,20 @@ class DecoratedContainer extends StatelessWidget {
     end: Alignment.bottomCenter,
   );
   final bool isDisabled;
+  final bool isExpanded;
 
   DecoratedContainer(
       {super.key,
       required this.child,
       this.padding = const EdgeInsets.all(16.0),
       this.useGradient = false,
-      this.isDisabled = false});
+      this.isDisabled = false,
+      this.isExpanded = true});
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: isExpanded ? double.infinity : null,
       decoration: BoxDecoration(
         color: isDisabled ? Colors.grey.shade400 : Colors.white,
         gradient: useGradient ? gradient : null,

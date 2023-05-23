@@ -96,7 +96,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
       _subjectNameEditingController.clear();
       _subjectCodeEditingController.clear();
     } else {
-      var foundSubject = await _subjectService
+      final foundSubject = await _subjectService
           .getSubjectReferenceByCode(_subjectCodeEditingController.text);
       if (foundSubject == null) {
         _subjectService.createSubject(

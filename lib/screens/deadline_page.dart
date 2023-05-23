@@ -1,5 +1,6 @@
 import 'package:deadline_tracker/services/deadline_service.dart';
 import 'package:deadline_tracker/services/subject_service.dart';
+import 'package:deadline_tracker/widgets/decorated_container.dart';
 import 'package:deadline_tracker/widgets/futurebuilder_handler.dart';
 import 'package:deadline_tracker/widgets/page_container.dart';
 import 'package:deadline_tracker/widgets/title_text.dart';
@@ -31,21 +32,26 @@ class DeadlinePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TitleText(
-              text: deadline.title,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            FutureBuilderHandler(
-              future: _subjectService.getSubjectObjectById(deadline.subjectRef),
-              toReturn: (AsyncSnapshot<Subject> snapshot) {
-                final subject = snapshot.data!;
-                return TitleText(
-                  text: "${subject.code} ${subject.name}",
-                  fontSize: 18,
-                );
-              },
+            DecoratedContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TitleText(
+                    text: deadline.title,
+                  ),
+                  FutureBuilderHandler(
+                    future: _subjectService
+                        .getSubjectObjectById(deadline.subjectRef),
+                    toReturn: (AsyncSnapshot<Subject> snapshot) {
+                      final subject = snapshot.data!;
+                      return TitleText(
+                        text: "${subject.code} ${subject.name}",
+                        fontSize: 18,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 10,
@@ -59,11 +65,16 @@ class DeadlinePage extends StatelessWidget {
                 return Row(
                   children: [
                     Text(
-                        "Status: ${voteAmount >= subject.requiredVotes ? "Approved" : "Proposed"}"),
-                    SizedBox(
-                      width: 20,
+                      "Votes: ${voteAmount}",
+                      style: TextStyle(color: Colors.grey),
                     ),
-                    Text("Votes: ${voteAmount}"),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Text(
+                      "${voteAmount >= subject.requiredVotes ? "Approved" : "Not yet approved"}",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 );
               },
@@ -89,6 +100,7 @@ class DeadlinePage extends StatelessWidget {
                     ],
                   )
                 : Container(),
+            Divider(),
             SizedBox(
               height: 10,
             ),
@@ -100,10 +112,21 @@ class DeadlinePage extends StatelessWidget {
               height: 10,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: deadline.description.isEmpty
-                    ? Text("No description provided")
-                    : Text(deadline.description),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: SingleChildScrollView(
+                  child: deadline.description.isEmpty
+                      ? Text("No description provided")
+                      : Text(deadline.description),
+                ),
               ),
             )
           ],
@@ -130,7 +153,7 @@ class DeadlinePage extends StatelessWidget {
   Widget editButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        var subject =
+        final subject =
             await _subjectService.getSubjectObjectById(deadline.subjectRef);
         final addDeadlinePage = MaterialPageRoute(
           builder: (BuildContext context) => AddEditDeadlinePage(
